@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>hardware</name>
+    <version>0.0.0</version>
+    <description>The nadie_controll package</description>
+    <maintainer email="mike@wimblerobotics.com">pi</maintainer>
+    <license>MIT</license>
+    <url type="website">https://github.com/wimblerobotics/nadie/wiki</url> -->
+    <author email="mike@wimblerobotics.com">Michael Wimble</author> -->
+
+    <!-- Use test_depend for packages you need only for testing: -->
+    <!--   <test_depend>gtest</test_depend> -->
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>controller_interface</depend>
+    <depend>controller_manager</depend>
+    <depend>dynamic_reconfigure</depend>
+    <depend>geometry_msgs</depend>
+    <depend>hardware_interface</depend>
+    <depend>joint_limits_interface</depend>
+    <depend>message_generation</depend>
+    <depend>message_runtime</depend>
+    <!-- <depend>pcl_ros</depend> -->
+    <depend>rosconsole</depend>
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>sensor_msgs</depend>
+    <depend>std_msgs</depend>
+    <!-- <depend>tf</depend> -->
+    <!-- <depend>tf2</depend> -->
+    <!-- <depend>tf2_ros</depend> -->
+    <!-- <depend>tf2_msgs</depend> -->
+    <!-- <depend>tf2_sensor_msgs</depend> -->
+    <depend>transmission_interface</depend>
+    <depend>urdf</depend>
+
+    <test_depend>rostest</test_depend>
+
+
+    <!-- The export tag contains other, unspecified, tags -->
+    <export>
+    <!-- Other tools can request additional information be placed here -->
+    </export>
+</package>
