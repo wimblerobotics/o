@@ -37,7 +37,6 @@
     <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
       
-    <group ns="$(arg robot_namespace)">
         <rosparam command="load" file="$(find o_hardware)/param/motor_controller.yaml" />
 
         <!-- Start the motor controller -->
@@ -52,6 +51,5 @@
         
             <remap from="odom" to="motor_odom" />
         </node>
-    </group>
 </launch>
       

@@ -1,30 +1,3 @@
-motor_controller:
-  control_loop_hz: 10
-
-  m1_d: 0
-  m1_i: 3.94584
-  m1_p: 12.40624
-  m1_qpps: 937
-
-  m2_d: 0
-  m2_i: 4.38229
-  m2_p: 12.40624
-  m2_qpps: 1312
-
-  max_command_retries: 20
-  max_m1_current: 12.0
-  max_m2_current: 12.0
-  max_seconds_uncommanded_travel: 0.5
-  port_address: 128
-  quad_pulses_per_meter: 1566
-  quad_pulses_per_revolution: 1000
-  usb_device_name: "/dev/roboclaw"
-  vmin: 1
-  vtime: 2
-  wheel_radius: 0.10169
-
-
-
 joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
@@ -41,7 +14,7 @@ diff_drive_controller:
   # Wheel separation and diameter. These are both optional.
   # diff_drive_controller will attempt to read either one or both from the
   # URDF if not specified as a parameter
-  wheel_separation :  0.35 #0.335 #0.369 # 0.349 #0.340
+  wheel_separation :  0.345 #0.335 #0.369 # 0.349 #0.340
   wheel_radius : 0.10169
 
   # Wheel separation and radius multipliers

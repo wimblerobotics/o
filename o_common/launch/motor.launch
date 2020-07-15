@@ -37,9 +37,12 @@
         <arg name="robot_namespace" default="o" />
       
         <group ns="$(arg robot_namespace)">
-           <include file="$(find o_common)/launch/machines.xml" />
+          <include file="$(find o_common)/launch/machines.xml" />
         
-          <!-- Run joint state publisher -->
+	  <!-- load the controller yaml -->
+     	  <rosparam file="$(find o_common)/param/ros_control.yaml" command="load" />
+          
+	  <!-- Run joint state publisher -->
           <node 
             if="$(arg do_joint_state_publisher)"
             machine="nxa"
@@ -77,7 +80,7 @@
           <include 
             if="$(arg do_motor_controller)"
             file="$(find o_hardware)/launch/motor.launch">
-            <arg name="robot_namespace" value="$(arg robot_namespace)" />
+	    <arg name="robot_namespace" value="$(arg robot_namespace)" />
             <arg name="do_load_urdf" value="$(arg do_load_urdf)" />
           </include>
       

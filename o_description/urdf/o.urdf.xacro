@@ -24,18 +24,8 @@ SOFTWARE.
 
   <xacro:arg name="robot_namespace" default="/o" />
 
-  <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <legacyModeNS>true</legacyModeNS>      
-      <!-- If using DefaultRobotHWSim, set this to "true" to fix namespace issue -->
-      <!--robotNamespace>$(arg robot_namespace)</robotNamespace-->
-    </plugin>
-  </gazebo>
-
   <xacro:include filename="$(find o_description)/urdf/caster.urdf.xacro" />
   <xacro:include filename="$(find o_description)/urdf/wheel.urdf.xacro" />
-  <!--xacro:include filename="$(find o_description)/urdf/lidar_sim.xacro" /-->
-
 
   <xacro:property name="M_PI" value="3.14159"/>
 

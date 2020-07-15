@@ -44,9 +44,6 @@ SOFTWARE.
 			</visual>
 		</link>
 
-		<gazebo reference="${wheel_prefix}_wheel_link">
-		</gazebo>
-
 		<joint name="${wheel_prefix}_wheel" type="fixed">
 			<parent link="base_link"/>
 			<child link="${wheel_prefix}_wheel_link"/>
