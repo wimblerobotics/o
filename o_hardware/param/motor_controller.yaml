@@ -1,0 +1,86 @@
+gazebo_ros_control:
+  
+  pid_gains:
+    front_left_wheel:
+      p: 200
+      i: 200
+      d: 0
+    front_right_wheel:
+      p: 200
+      i: 200
+      d: 0
+
+motor_controller:
+  control_loop_hz: 10
+
+  m1_d: 0
+  m1_i: 3.94584
+  m1_p: 12.40624
+  m1_qpps: 937
+
+  m2_d: 0
+  m2_i: 4.38229
+  m2_p: 12.40624
+  m2_qpps: 1312
+
+  max_command_retries: 20
+  max_m1_current: 12.0
+  max_m2_current: 12.0
+  max_seconds_uncommanded_travel: 0.5
+  port_address: 128
+  quad_pulses_per_meter: 1566
+  quad_pulses_per_revolution: 1000
+  usb_device_name: "/dev/roboclaw"
+  vmin: 1
+  vtime: 2
+  wheel_radius: 0.10169
+
+
+
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+
+diff_drive_controller:
+  type        : "diff_drive_controller/DiffDriveController"
+  left_wheel  : 'front_left_wheel'
+  right_wheel : 'front_right_wheel'
+  publish_rate: 50.0
+  pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+  twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+
+  # Wheel separation and diameter. These are both optional.
+  # diff_drive_controller will attempt to read either one or both from the
+  # URDF if not specified as a parameter
+  wheel_separation :  0.35 #0.335 #0.369 # 0.349 #0.340
+  wheel_radius : 0.10169
+
+  # Wheel separation and radius multipliers
+  wheel_separation_multiplier: 1 # 0.95 # default: 1.0
+  wheel_radius_multiplier    : 1.0 # default: 1.0
+
+  # Velocity commands timeout [s], default 0.5
+  cmd_vel_timeout: 0.25
+  velocity_rolling_window_size: 2
+
+  # Base frame_id
+  base_frame_id: base_link
+  odom_frame_id: odom
+  enable_odom_tf: false
+  estimate_velocity_from_position: false
+
+  # Velocity and acceleration limits
+  # Whenever a min_* is unspecified, default to -max_*
+  linear:
+    x:
+      has_velocity_limits    : yes
+      max_velocity           : 0.5
+      has_acceleration_limits: true
+      max_acceleration       : 0.25
+  angular:
+    z:
+      has_velocity_limits    : yes
+      max_velocity           : 1.0
+      has_acceleration_limits: true
+      max_acceleration       : 0.5

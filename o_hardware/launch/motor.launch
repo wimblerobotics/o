@@ -1,0 +1,57 @@
+    <!--
+    Copyright (c) 2020 Michael Wimble
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+    -->
+<launch> 
+    <arg name="doDebug" default="false" />
+    <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
+    <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
+    
+    <arg name="do_load_urdf" default = "true" />>
+    <arg name="machine" default="nxa" />>
+    <arg name="robot_namespace" default="o" />
+   
+    <include file="$(find o_common)/launch/machines.xml" />
+    
+    <!-- Load the URDF -->
+    <include 
+    if="$(arg do_load_urdf)"
+    file="$(find o_description)/launch/description.launch" >
+    <arg name="robot_namespace" value="$(arg robot_namespace)" />
+    </include>
+      
+    <group ns="$(arg robot_namespace)">
+        <rosparam command="load" file="$(find o_hardware)/param/motor_controller.yaml" />
+
+        <!-- Start the motor controller -->
+        <node 
+            launch-prefix="$(arg launchPrefix)" 
+            machine="$(arg machine)"
+            name="motor_controller_node" 
+            pkg="o_hardware"  
+            type="motor_controller_node" 
+            output="screen" 
+            respawn="true" >
+        
+            <remap from="odom" to="motor_odom" />
+        </node>
+    </group>
+</launch>
+      

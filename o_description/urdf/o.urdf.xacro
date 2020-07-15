@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2018 Michael Wimble
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="o">
+
+  <xacro:arg name="robot_namespace" default="/o" />
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <legacyModeNS>true</legacyModeNS>      
+      <!-- If using DefaultRobotHWSim, set this to "true" to fix namespace issue -->
+      <!--robotNamespace>$(arg robot_namespace)</robotNamespace-->
+    </plugin>
+  </gazebo>
+
+  <xacro:include filename="$(find o_description)/urdf/caster.urdf.xacro" />
+  <xacro:include filename="$(find o_description)/urdf/wheel.urdf.xacro" />
+  <!--xacro:include filename="$(find o_description)/urdf/lidar_sim.xacro" /-->
+
+
+  <xacro:property name="M_PI" value="3.14159"/>
+
+  <xacro:property name="body_height" value="0.305" />
+  <xacro:property name="body_length" value="0.455" />
+  <xacro:property name="body_width" value="0.315" />
+  <xacro:property name="caster_radius" value="0.05" />
+  <xacro:property name="caster_width" value="0.030" />
+  <xacro:property name="fwheel_offset" value="-0.300" />
+  <xacro:property name="lidar_height" value="0.05" />
+  <xacro:property name="lidar_length" value="0.125" />
+  <xacro:property name="lidar_width" value="0.115" />
+  <xacro:property name="gear_box_center_height" value="0.021" />
+  <xacro:property name="wheel_radius" value="0.1016" />
+  <xacro:property name="wheel_vertical_offset" value="${wheel_radius+gear_box_center_height}" />
+  <xacro:property name="wheel_spacer" value="0.00254" />
+  <xacro:property name="wheel_width" value="0.040" />
+ 
+  <xacro:property name="stereo_plate_x_offset" value="0.170" />
+  <xacro:property name="stereo_plate_z_offset" value="0.270" />
+  <xacro:property name="d435_y_offset" value="0.077" />
+ 
+  <xacro:property name="lidar_x_offset" value="-0.130" />
+  <xacro:property name="lidar_z_offset" value="${body_height+(lidar_height/2)}" />
+
+  <material name="base">
+    <color rgba="0.9 0.9 0.9 1" />
+  </material>
+
+  <material name="blackish">
+    <color rgba="0.1 0.1 0.1 1" />
+  </material>
+
+  <material name="caster_wheel_material">
+    <color rgba="0.9 0.1 0.1 1" />
+  </material>
+
+  <material name="wheel_material">
+    <color rgba="0.15 0.15 0.15 1" />
+  </material>
+
+  <!-- Parts -->
+  <link name="base_link">
+    <collision>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <origin rpy="0 0.0261799 0" xyz="0 0 ${(body_height/2)}"/>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="${body_length} ${body_width} ${body_height}"/>
+      </geometry>
+      <material name="base" />
+      <origin rpy="0 0 0" xyz="${(-body_length/2)+0.125} 0 ${(body_height/2)}"/>
+    </visual>
+    <!--inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial-->
+  </link>
+
+  <!-- Base footprint is on the ground under the robot -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <origin xyz="0 0 -${wheel_vertical_offset}" rpy="0 -0.009599311 0" />
+    <parent link="base_link" />
+    <child link="base_footprint" />
+  </joint>
+
+  <!-- inetial_link stores the robot's inertial information -->
+  <link name="inertial_link">
+    <inertial>
+      <mass value="14" />
+      <origin xyz="-0.00065 -0.085 0.062" />
+      <inertia ixx="0.6022" ixy="-0.02364" ixz="-0.1197" iyy="1.7386" iyz="-0.001544" izz="2.0296" />
+    </inertial>
+  </link>
+
+  <joint name="inertial_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="inertial_link" />
+  </joint>
+
+  <xacro:wheel wheel_prefix="front_left">
+    <origin xyz="0 ${(body_width/2)+wheel_spacer+(wheel_width/2)} -${gear_box_center_height}" rpy="0 0 0" />
+  </xacro:wheel>
+
+  <xacro:wheel wheel_prefix="front_right">
+    <origin xyz="0 -${(body_width/2)+wheel_spacer+(wheel_width/2)} -${gear_box_center_height}" rpy="0 0 0" />
+  </xacro:wheel>
+
+  <xacro:caster wheel_prefix="lcaster">
+    <origin xyz="${fwheel_offset} 0.135 ${-caster_radius}" rpy="0 0 0" />
+  </xacro:caster>
+  <xacro:caster wheel_prefix="rcaster">
+    <origin xyz="${fwheel_offset} -0.135 ${-caster_radius}" rpy="0 0 0" />
+  </xacro:caster>
+
+  <link name="neato">
+    <collision>
+      <geometry>
+        <box size="${lidar_width} ${lidar_length} ${lidar_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="${lidar_width} ${lidar_length} ${lidar_height}"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="blackish" />
+    </visual>
+  </link>
+
+  <joint name="base_to_neato" type="fixed">
+    <parent link="base_link"/>
+    <child link="neato"/>
+    <origin xyz="${lidar_x_offset} 0  ${lidar_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:include filename="$(find o_description)/urdf/_d435.urdf.xacro" />
+  <xacro:sensor_d435 parent="base_link" name="d435_left">
+    <origin xyz="${stereo_plate_x_offset} ${d435_y_offset} ${stereo_plate_z_offset}" rpy="0 0 0.35" />
+  </xacro:sensor_d435>
+
+  <xacro:sensor_d435 parent="base_link" name="d435_right">
+    <origin xyz="${stereo_plate_x_offset} ${-d435_y_offset} ${stereo_plate_z_offset}" rpy="0 0 -0.36" />
+  </xacro:sensor_d435>
+
+  <material name="t265_material">
+    <color rgba="0.60 0.40 0.60 1" />
+  </material>
+
+  <xacro:property name="t265_height" value="0.016" />
+  <xacro:property name="t265_length" value="0.100" />
+  <xacro:property name="t265_width" value="0.008" />
+
+  <link name="t265_camera_link">
+    <collision>
+      <geometry>
+        <box size="${t265_width} ${t265_length} ${t265_height}" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="${t265_width} ${t265_length} ${t265_height}" />
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <material name="t265_material" />
+    </visual>
+  </link>
+
+  <joint name="base_to_t265" type="fixed">
+    <parent link="base_link" />
+    <child link="t265_camera_link" />
+    <origin xyz="${stereo_plate_x_offset} 0 ${stereo_plate_z_offset-0.030}" rpy="0 0 0" />
+  </joint>
+</robot>

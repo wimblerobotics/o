@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>o_description</name>
+  <version>1.0.0</version>
+  <description>NadieWimble Robotics robot "O"  URDF and model description</description>
+
+  <author email="mike@wimblerobotics.com">Michael Wimble</author>
+  <license>MIT</license>
+  <maintainer email="mike@wimblerobotics.com">Michael Wimble</maintainer>
+  <url type="website">http://wimblerobotics.com</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roslaunch</build_depend>
+  <depend>urdf</depend>
+  <depend>xacro</depend>
+
+  <export>
+  </export>
+</package>
