@@ -3,6 +3,7 @@
 
 #include "ros/ros.h"
 #include <boost/thread/mutex.hpp>
+#include "hardware/motor_controllerConfig.h"
 #include "hardware/ResetEncoders.h"
 #include "hardware_interface/joint_command_interface.h"
 #include "hardware_interface/joint_state_interface.h"
@@ -186,6 +187,8 @@ private:
 	int vtime_;								// Terminal control value.
 	double wheelRadius_;					// Wheel radius.
 
+    motor_controller::motor_controllerConfig controllerConfiguration_;
+
 	enum {
 		kM1_OVER_CURRENT = 0x01,			// Moter 1 current sense is too high.
 		kM2_OVER_CURRENT = 0x02,			// Motor 2 current sense is too high.
@@ -214,6 +217,10 @@ private:
 	 * running controllers in \ref update.
 	 */
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
+
+    // Process dynamic configuration callbacks.
+    void dynamicConfigurationCallback(motor_controller::motor_controllerConfig &config, uint32_t level);
+
 
 	// Get the encoder result given a command which indicates which motor to interrogate.
 	EncodeResult getEncoderCommandResult(uint8_t command);

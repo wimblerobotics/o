@@ -19,6 +19,24 @@
 
 #define SetDWORDval(arg) (uint8_t)(arg>>24),(uint8_t)(arg>>16),(uint8_t)(arg>>8),(uint8_t)arg
 
+void MotorController::dynamicConfigurationCallback(motor_controller::motor_controllerConfig &config, uint32_t level) {
+    controllerConfiguration_ = config;
+    /* 'level' iterpretation
+        # 1 => file open parameters
+        #       port_address, usb_device_name, vmin, vtime
+        # 2 => RoboClaw write parameters
+        #       m1_d, m1_i, m1_p, , m1_qpps, m2_d, m2_i, m2_p, m2_qpps
+        # 4 => RoboClaw sense-related parameters.
+        #       max_m1_current, max_m2_current
+        # 8 => ros_control related parameters.
+        #       control_loop_hz
+        # 16 => Internal policy
+        #       max_command_retries, max_seconds_uncommanded_travel
+        # 32 => Physics, model
+        #       quad_pulses_per_meter, quad_pulses_per_revolution, wheel_radius
+    */
+}
+
 MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	: RoboclawController(nh, urdf_model)
 	, motorAlarms_(0)
