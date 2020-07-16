@@ -32,6 +32,7 @@
         <arg name="do_load_urdf" default="true" />
         <arg name="do_motor_controller" default="true" />
         <arg name="do_robot_state_publisher" default="true" />
+        <arg name="machine" default="nxa" />>
         <arg name="use_joint_state_publisher_gui" default="false" />
       
         <arg name="robot_namespace" default="o" />
@@ -45,7 +46,7 @@
 	  <!-- Run joint state publisher -->
           <node 
             if="$(arg do_joint_state_publisher)"
-            machine="nxa"
+            machine="$(arg machine)"
             name="joint_state_publisher"
             pkg="joint_state_publisher"
             type="joint_state_publisher" >
@@ -56,7 +57,7 @@
           <!-- Starting robot state publish which will publish tf --> 
           <node 
             if="$(arg do_robot_state_publisher)"
-            machine="nxa"
+            machine="$(arg machine)"
             name="robot_state_publisher" 
             pkg="robot_state_publisher" 
             type="robot_state_publisher" >
@@ -66,7 +67,7 @@
           <!-- load the controllers -->
           <node 
             if="$(arg do_controller_manager)"
-            machine="nxa"
+            machine="$(arg machine)"
             name="controller_spawner" 
             pkg="controller_manager" 
             type="spawner" 
@@ -80,12 +81,13 @@
           <include 
             if="$(arg do_motor_controller)"
             file="$(find o_hardware)/launch/motor.launch">
-	    <arg name="robot_namespace" value="$(arg robot_namespace)" />
+            <arg name="robot_namespace" value="$(arg robot_namespace)" />
             <arg name="do_load_urdf" value="$(arg do_load_urdf)" />
+            <arg name="machine" value="$(arg machine)" />>
           </include>
       
           <node
-            machine="nxa"
+            machine="$(arg machine)"
             name="motor_nodelet_manager" 
             pkg="nodelet" 
             type="nodelet"
@@ -93,7 +95,7 @@
       
           <node 
             if="$(arg do_cmd_vel_mux)"
-            machine="nxa"
+            machine="$(arg machine)"
             name="twist_mux"
             pkg="twist_mux"
             type="twist_mux"

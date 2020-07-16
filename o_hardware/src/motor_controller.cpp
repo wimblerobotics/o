@@ -63,7 +63,7 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	assert(ros::param::get("motor_controller/usb_device_name", motorUSBPort_));
 	assert(ros::param::get("motor_controller/vmin", vmin_));
 	assert(ros::param::get("motor_controller/vtime", vtime_));
-	assert(ros::param::get("motor_controller/wheel_radius", wheelRadius_));
+	assert(ros::param::get("diff_drive_controller/wheel_radius", wheelRadius_));
 	ROS_INFO("[MotorController::MotorController] motor_controller/control_loop_hz: %6.3f", controlLoopHz_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m1p: %6.3f", m1p_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m1i: %6.3f", m1i_);
@@ -83,7 +83,7 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	ROS_INFO("[MotorController::MotorController] motor_controller/usb_device_name: %s", motorUSBPort_.c_str());
 	ROS_INFO("[MotorController::MotorController] motor_controller/vmin: %d", vmin_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/vtime: %d", vtime_);
-	ROS_INFO("[MotorController::MotorController] motor_controller/wheel_radius: %6.4f", wheelRadius_);
+	ROS_INFO("[MotorController::MotorController] diff_drive_controller/wheel_radius: %6.4f", wheelRadius_);
 
 	now_ = ros::Time::now();
 	lastTime_ = now_;

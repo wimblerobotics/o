@@ -21,6 +21,14 @@ SOFTWARE.
 -->
 <launch>
     <machine
+        address="ubuntu"
+        default="false"
+        env-loader="/home/wimble/remote_env.sh"
+        name="ubuntu"
+        user="wimble"
+    />
+    
+    <machine
         address="nanoa"
         default="false"
         env-loader="/homeext/ros/remote_env.sh"
