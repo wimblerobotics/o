@@ -1,4 +1,4 @@
-    <!--
+<!--
     Copyright (c) 2020 Michael Wimble
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,100 +19,89 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     -->
-    <launch> 
-        <arg name="doDebug" default="false" />
-        <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
-        <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
-      
-        <arg name="cmd_vel_mux_node_name" value="cmd_vel_mux" />
-        <arg name="do_cmd_vel_mux" default="true" />
-        <arg name="do_controller_manager" default="true" />
-        <arg name="do_joint_state_publisher" default="true" />
-        <arg name="do_joystick" default="true" />
-        <arg name="do_load_urdf" default="true" />
-        <arg name="do_motor_controller" default="true" />
-        <arg name="do_robot_state_publisher" default="true" />
-        <arg name="machine" default="nxa" />>
-        <arg name="use_joint_state_publisher_gui" default="false" />
-      
-        <arg name="robot_namespace" default="o" />
-      
-        <group ns="$(arg robot_namespace)">
-          <include file="$(find o_common)/launch/machines.xml" />
-        
-	  <!-- load the controller yaml -->
-     	  <rosparam file="$(find o_common)/param/ros_control.yaml" command="load" />
-          
-	  <!-- Run joint state publisher -->
-          <node 
-            if="$(arg do_joint_state_publisher)"
-            machine="$(arg machine)"
-            name="joint_state_publisher"
-            pkg="joint_state_publisher"
-            type="joint_state_publisher" >
+<launch>
+    <arg name="cmd_vel_mux_node_name" value="cmd_vel_mux" />
+    <arg name="do_cmd_vel_mux" default="true" />
+    <arg name="do_controller_manager" default="true" />
+    <arg name="do_joint_state_publisher" default="true" />
+    <arg name="do_joystick" default="true" />
+    <arg name="do_load_urdf" default="true" />
+    <arg name="do_motor_controller" default="true" />
+    <arg name="do_robot_state_publisher" default="true" />
+    <arg name="machine" default="nxa" />
+    >
+    <arg name="use_joint_state_publisher_gui" default="false" />
+
+    <arg name="robot_namespace" default="o" />
+
+    <group ns="$(arg robot_namespace)">
+        <include file="$(find o_common)/launch/machines.xml" />
+
+        <!-- load the controller yaml -->
+        <rosparam file="$(find o_common)/param/ros_control.yaml" command="load" />
+
+        <!-- Run joint state publisher -->
+        <node if="$(arg do_joint_state_publisher)" 
+              machine="$(arg machine)" 
+              name="joint_state_publisher" 
+              pkg="joint_state_publisher" 
+              type="joint_state_publisher">
             <param name="rate" value="50" />
-            <param name="use_gui" value="$(arg use_joint_state_publisher_gui)"/>
-          </node>
-      
-          <!-- Starting robot state publish which will publish tf --> 
-          <node 
-            if="$(arg do_robot_state_publisher)"
-            machine="$(arg machine)"
-            name="robot_state_publisher" 
-            pkg="robot_state_publisher" 
-            type="robot_state_publisher" >
+            <param name="use_gui" value="$(arg use_joint_state_publisher_gui)" />
+        </node>
+
+        <!-- Starting robot state publish which will publish tf -->
+        <node if="$(arg do_robot_state_publisher)" 
+              machine="$(arg machine)" 
+              name="robot_state_publisher" 
+              pkg="robot_state_publisher" 
+              type="robot_state_publisher">
             <remap from="joint_states" to="/$(arg robot_namespace)/joint_states" />
-          </node>
-         
-          <!-- load the controllers -->
-          <node 
-            if="$(arg do_controller_manager)"
-            machine="$(arg machine)"
-            name="controller_spawner" 
-            pkg="controller_manager" 
-            type="spawner" 
-            respawn="false"
-            output="screen" 
-            args="joint_state_controller diff_drive_controller"
-          >
-          </node>
-      
-          <!-- Start the motor controller -->
-          <include 
-            if="$(arg do_motor_controller)"
-            file="$(find o_hardware)/launch/motor.launch">
+        </node>
+
+        <!-- load the controllers -->
+        <node if="$(arg do_controller_manager)" 
+              machine="$(arg machine)" 
+              name="controller_spawner" 
+              pkg="controller_manager" 
+              type="spawner" 
+              respawn="true" 
+              output="screen" 
+              args="joint_state_controller diff_drive_controller">
+        </node>
+
+        <!-- Start the motor controller -->
+        <include if="$(arg do_motor_controller)" 
+                 file="$(find o_hardware)/launch/motor.launch">
             <arg name="robot_namespace" value="$(arg robot_namespace)" />
             <arg name="do_load_urdf" value="$(arg do_load_urdf)" />
-            <arg name="machine" value="$(arg machine)" />>
-          </include>
-      
-          <node
-            machine="$(arg machine)"
-            name="motor_nodelet_manager" 
-            pkg="nodelet" 
-            type="nodelet"
-            args="manager" />
-      
-          <node 
-            if="$(arg do_cmd_vel_mux)"
-            machine="$(arg machine)"
-            name="twist_mux"
-            pkg="twist_mux"
-            type="twist_mux"
-            output="screen">
-            <remap from="$(arg robot_namespace)/cmd_vel_out" to="$(arg robot_namespace)/diff_drive_controller/cmd_vel"/>
-      
-            <rosparam file="$(find o_common)/param/cmd_vel_mux.yaml" command="load"/>
-          </node>
-      
-        </group>
-      
-        <!-- Start the joystick controller -->
-        <include
-          if="$(arg do_joystick)"
-          file="$(find o_common)/launch/joystick.launch" >
-          <arg name="robot_namespace" value="$(arg robot_namespace)" />
+            <arg name="machine" value="$(arg machine)" />
+            >
         </include>
-      
-      </launch>
-      
+
+        <node machine="$(arg machine)" 
+              name="motor_nodelet_manager" 
+              pkg="nodelet" 
+              type="nodelet" 
+              args="manager" />
+
+        <node if="$(arg do_cmd_vel_mux)" 
+              machine="$(arg machine)" 
+              name="twist_mux" 
+              pkg="twist_mux" 
+              type="twist_mux" 
+              output="screen">
+            <remap from="$(arg robot_namespace)/cmd_vel_out" 
+                   to="$(arg robot_namespace)/diff_drive_controller/cmd_vel" />
+            <rosparam file="$(find o_common)/param/cmd_vel_mux.yaml" command="load" />
+        </node>
+
+    </group>
+
+    <!-- Start the joystick controller -->
+    <include if="$(arg do_joystick)" 
+             file="$(find o_common)/launch/joystick.launch">
+        <arg name="robot_namespace" value="$(arg robot_namespace)" />
+    </include>
+
+</launch>
