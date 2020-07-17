@@ -122,10 +122,10 @@ SOFTWARE.
   </xacro:wheel>
 
   <xacro:caster wheel_prefix="lcaster">
-    <origin xyz="${fwheel_offset} 0.135 ${-caster_radius}" rpy="0 0 0" />
+    <origin xyz="${fwheel_offset} 0.135 -0.086" rpy="0 0 0" />
   </xacro:caster>
   <xacro:caster wheel_prefix="rcaster">
-    <origin xyz="${fwheel_offset} -0.135 ${-caster_radius}" rpy="0 0 0" />
+    <origin xyz="${fwheel_offset} -0.135 -0.086" rpy="0 0 0" />
   </xacro:caster>
 
   <link name="neato">
@@ -196,6 +196,6 @@ SOFTWARE.
   <joint name="base_to_t265" type="fixed">
     <parent link="base_link" />
     <child link="t265_camera_link" />
-    <origin xyz="${stereo_plate_x_offset} 0 ${stereo_plate_z_offset-0.030}" rpy="0 0 0" />
+    <origin xyz="0.135 0 0.235" rpy="0 0 0" />
   </joint>
 </robot>

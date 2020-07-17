@@ -25,7 +25,6 @@ SOFTWARE.
     <arg name="do_motor" default="true" />
     <arg name="do_t265" default="true" />
 	<arg name="do_t265_odom_transform" value="true" />
-	<arg name="do_t265_static_transform" value="true" />
 6    <arg name="machine" default="nxa" />
     <arg name="robot_namespace" default="o" />
 
@@ -35,7 +34,6 @@ SOFTWARE.
     <include if="$(arg do_t265)" 
              file="$(find o_common)/launch/t265.launch">
         <arg name="do_t265_odom_transform" value="$(arg do_t265_odom_transform)" />
-        <arg name="do_t265_static_transform" value="$(arg do_t265_static_transform)" />
     </include>
 
     <!-- Launch the LIDAR -->

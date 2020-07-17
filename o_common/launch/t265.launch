@@ -20,25 +20,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
 <launch>
-    <arg name="do_t265_static_transform" default="false" />
     <arg name="do_t265_odom_transform" default="false" />
     <arg name="machine"  default="nxa" />
 
-
-    <include file="$(find o_common)/launch/machines.xml" />
-    <node
-        if="$(arg do_t265_static_transform)"
-        name="t265_pose_frame_to_base_link" 
-        pkg="tf" 
-        type="static_transform_publisher" 
-        args="-0.24 0 -0.105 0 0.0 0 base_link t265_link 200" />
 
     <node
         if="$(arg do_t265_odom_transform)"
         name="t265_base_link_to_t265_pose_frame" 
         pkg="tf" 
         type="static_transform_publisher" 
-        args="-0.24 0 -0.105 0 0.0 0 t265_pose_frame base_link  200" />
+        args="-0.135 0 -0.235 0 0.0 0 t265_pose_frame base_link  200" />
 
     
     
