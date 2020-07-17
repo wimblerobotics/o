@@ -57,7 +57,7 @@ SOFTWARE.
     
     <group ns="$(arg camera)">
         <include file="$(find o_common)/launch/includes/nodelet.launch.xml">
-            <arg name="calib_odom_file"          value="/home/ros/nadie_ws/src/nadie/nadie_control/config/calib_odometry.json" />
+            <arg name="calib_odom_file"          value="$(find o_common)/param/calib_odometry.json" />
             <arg name="enable_accel"             value="$(arg enable_accel)"/>
             <arg name="accel_fps"                value="$(arg accel_fps)"/>
             <arg name="enable_depth"             value="false" />>
@@ -77,7 +77,7 @@ SOFTWARE.
             <!--arg name="odom_frame_id"            value="$(arg odom_frame_id)" /-->
             <arg name="serial_no"                value="$(arg serial_no)"/>
             <arg name="tf_prefix"                value="$(arg tf_prefix)"/>
-            <arg name="topic_odom_in"            value="/nadie/diff_drive_controller/odom" />
+            <arg name="topic_odom_in"            value="/o/diff_drive_controller/odom" />
             <arg name="unite_imu_method"         value="$(arg unite_imu_method)"/>
         </include>
     </group>

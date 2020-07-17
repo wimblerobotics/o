@@ -29,30 +29,31 @@ SOFTWARE.
 
   <xacro:property name="M_PI" value="3.14159"/>
 
-  <xacro:property name="body_height" value="0.305" />
-  <xacro:property name="body_length" value="0.455" />
-  <xacro:property name="body_width" value="0.315" />
-  <xacro:property name="caster_radius" value="0.05" />
+  <xacro:property name="body_height" value="0.302" />
+  <xacro:property name="body_length" value="0.454" />
+  <xacro:property name="body_width" value="0.314" />
+  <xacro:property name="caster_radius" value="0.037" />
   <xacro:property name="caster_width" value="0.030" />
-  <xacro:property name="fwheel_offset" value="-0.300" />
-  <xacro:property name="lidar_height" value="0.05" />
+  <xacro:property name="fwheel_offset" value="-0.265" />
+  <xacro:property name="lidar_height" value="0.06" />
   <xacro:property name="lidar_length" value="0.125" />
   <xacro:property name="lidar_width" value="0.115" />
-  <xacro:property name="gear_box_center_height" value="0.021" />
-  <xacro:property name="wheel_radius" value="0.1016" />
-  <xacro:property name="wheel_vertical_offset" value="${wheel_radius+gear_box_center_height}" />
-  <xacro:property name="wheel_spacer" value="0.00254" />
+  <xacro:property name="gear_box_center_height" value="0.015" />
+  <xacro:property name="wheel_radius" value="0.10" />
+  <xacro:property name="base_to_floor_y_offset" value="${wheel_radius+gear_box_center_height}" />
+  <xacro:property name="wheel_spacer" value="0.003" />
   <xacro:property name="wheel_width" value="0.040" />
+  <xacro:property name="wheel_offset_from_front" value="0.129" />
  
-  <xacro:property name="stereo_plate_x_offset" value="0.170" />
-  <xacro:property name="stereo_plate_z_offset" value="0.270" />
+  <xacro:property name="stereo_plate_x_offset" value="0.160" />
+  <xacro:property name="stereo_plate_z_offset" value="${0.258+0.0124}" />
   <xacro:property name="d435_y_offset" value="0.077" />
  
   <xacro:property name="lidar_x_offset" value="-0.130" />
-  <xacro:property name="lidar_z_offset" value="${body_height+(lidar_height/2)}" />
+  <xacro:property name="lidar_z_offset" value="${body_height+0.0525}" />
 
   <material name="base">
-    <color rgba="0.9 0.9 0.9 1" />
+    <color rgba="0.7 0.7 0.7 1" />
   </material>
 
   <material name="blackish">
@@ -73,14 +74,14 @@ SOFTWARE.
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
-      <origin rpy="0 0.0261799 0" xyz="0 0 ${(body_height/2)}"/>
+      <origin rpy="0 0 0" xyz="0 0 ${(body_height/2)}"/>
     </collision>
     <visual>
       <geometry>
         <box size="${body_length} ${body_width} ${body_height}"/>
       </geometry>
       <material name="base" />
-      <origin rpy="0 0 0" xyz="${(-body_length/2)+0.125} 0 ${(body_height/2)}"/>
+      <origin rpy="0 0 0" xyz="${(-body_length/2)+wheel_offset_from_front} 0 ${(body_height/2)}"/>
     </visual>
     <!--inertial>
       <origin xyz="0 0 0" rpy="0 0 0" />
@@ -93,9 +94,16 @@ SOFTWARE.
   <link name="base_footprint"/>
 
   <joint name="base_footprint_joint" type="fixed">
-    <origin xyz="0 0 -${wheel_vertical_offset}" rpy="0 -0.009599311 0" />
+    <origin xyz="0 0 -${base_to_floor_y_offset}" rpy="0 0 0" />
     <parent link="base_link" />
     <child link="base_footprint" />
+  </joint>
+
+  <link name="odom" />>
+  <joint name="base_to_odom" type="fixed" >
+    <origin xyz="0 0 -0" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="odom" />
   </joint>
 
   <!-- inetial_link stores the robot's inertial information -->
@@ -122,13 +130,13 @@ SOFTWARE.
   </xacro:wheel>
 
   <xacro:caster wheel_prefix="lcaster">
-    <origin xyz="${fwheel_offset} 0.135 -0.086" rpy="0 0 0" />
+    <origin xyz="${fwheel_offset} 0.135 -0.078" rpy="0 0 0" />
   </xacro:caster>
   <xacro:caster wheel_prefix="rcaster">
-    <origin xyz="${fwheel_offset} -0.135 -0.086" rpy="0 0 0" />
+    <origin xyz="${fwheel_offset} -0.135 -0.078" rpy="0 0 0" />
   </xacro:caster>
 
-  <link name="neato">
+  <link name="neato_lidar_box">
     <collision>
       <geometry>
         <box size="${lidar_width} ${lidar_length} ${lidar_height}"/>
@@ -149,7 +157,15 @@ SOFTWARE.
     </visual>
   </link>
 
-  <joint name="base_to_neato" type="fixed">
+  <joint name="base_to_neato_lidar_box" type="fixed">
+    <parent link="base_link"/>
+    <child link="neato_lidar_box"/>
+    <origin xyz="${lidar_x_offset} 0  ${body_height+(lidar_height/2)}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="neato" />>
+
+  <joint name="base_to_scan" type="fixed">
     <parent link="base_link"/>
     <child link="neato"/>
     <origin xyz="${lidar_x_offset} 0  ${lidar_z_offset}" rpy="0 0 0"/>
@@ -196,6 +212,6 @@ SOFTWARE.
   <joint name="base_to_t265" type="fixed">
     <parent link="base_link" />
     <child link="t265_camera_link" />
-    <origin xyz="0.135 0 0.235" rpy="0 0 0" />
+    <origin xyz="${0.165-(t265_width/2)} 0 ${0.229+(t265_height/2)}" rpy="0 0 0" />
   </joint>
 </robot>
