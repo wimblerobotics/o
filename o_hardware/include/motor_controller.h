@@ -3,6 +3,7 @@
 
 #include "ros/ros.h"
 #include <boost/thread/mutex.hpp>
+#include <dynamic_reconfigure/server.h>
 #include "o_hardware/motor_controllerConfig.h"
 #include "o_hardware/ResetEncoders.h"
 #include "hardware_interface/joint_command_interface.h"
@@ -80,6 +81,9 @@ public:
 	void stop();
 
 private:
+	// For dynamic reconfiguration
+	 dynamic_reconfigure::Server<motor_controller::motor_controllerConfig> dynamicConfigurationServer_;
+	 dynamic_reconfigure::Server<motor_controller::motor_controllerConfig>::CallbackType dynamicConfigurationCallback_;
 	// For publishing the RoboClawStatus;
 	ros::Publisher statusPublisher_;
 
@@ -165,6 +169,7 @@ private:
 
 	int clawPort_;							// Unix file descriptor for RoboClaw connection.
 	double controlLoopHz_;					// Loop rate for control loop.
+	bool resetControlLoopHz_;				// True => value was changed via dynamic configuration
 	float m1p_;
 	float m1i_;
 	float m1d_;

@@ -33,9 +33,128 @@ void MotorController::dynamicConfigurationCallback(motor_controller::motor_contr
         # 16 => Internal policy
         #       max_command_retries, max_seconds_uncommanded_travel
         # 32 => Physics, model
-        #       quad_pulses_per_meter, quad_pulses_per_revolution, wheel_radius
+        #       quad_pulses_per_meter, quad_pulses_per_revolution
     */
+
+   if ((level & 1) != 0) {
+		// portAddress_
+		// motorUSBPort_
+		// vmin_
+		// vtime_
+		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", portAddress_: %d"
+				 ", motorUSBPort_: %s"
+				 ", vmin_: %d"
+				 ", vtime_: %d"
+				 , level
+				 , config.port_address
+				 , config.usb_device_name.c_str()
+				 , config.vmin
+				 , config.vtime);
+		portAddress_ = config.port_address;
+		motorUSBPort_ = config.usb_device_name;
+		vmin_ = config.vmin;
+		vtime_ = config.vtime;
+		MotorController::restartPort();
+   }
+
+   if ((level & 2) != 0) {
+		// m1d_
+		// m1i_
+		// m1p_
+		// m1qpps_
+		// m2d_
+		// m2i_
+		// m2p_
+		// m2qpps_
+		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", m1d_: %6.3f"
+				 ", m1i_: %6.3f"
+				 ", m1p_: %6.3f"
+				 ", m1qpps_: %d"
+				 ", m2d_: %6.3f"
+				 ", m2i_: %6.3f"
+				 ", m2p_: %6.3f"
+				 ", m2qpps_: %d"
+				 , level
+				 , config.m1_d
+				 , config.m1_i
+				 , config.m1_p
+				 , config.m1_qpps
+				 , config.m2_d
+				 , config.m2_i
+				 , config.m2_p
+				 , config.m2_qpps);
+		m1d_ = config.m1_d;
+		m1i_ = config.m1_i;
+		m1p_ = config.m1_p;
+		m1qpps_ = config.m1_qpps;
+		m2d_ = config.m2_d;
+		m2i_ = config.m2_i;
+		m2p_ = config.m2_p;
+		m2qpps_ = config.m2_qpps;
+		setM1PID(m1p_, m1i_, m1d_, m1qpps_);
+		setM2PID(m2p_, m2i_, m2d_, m2qpps_);
+   }
+   
+   if ((level & 4) != 0) {
+		// maxM1Current_
+		// maxM2Current_
+ 		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", maxM1Current_: %6.3f"
+				 ", maxM2Current_: %6.3f"
+				 , level
+				 , config.max_m1_current
+				 , config.max_m2_current);
+		maxM1Current_ = config.max_m1_current;
+		maxM2Current_ = config.max_m2_current;
+	}
+   
+   if ((level & 8) != 0) {
+		// controlLoopHz_
+ 		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", controlLoopHz_: %6.3f"
+				 , level
+				 , config.control_loop_hz);
+		controlLoopHz_ = config.control_loop_hz;
+		resetControlLoopHz_ = true;
+		expectedControlLoopDuration_ = ros::Duration(1 / controlLoopHz_);
+
+   }
+   
+   if ((level & 16) != 0) {
+		// maxCommandRetries_
+		// maxSecondsUncommandedTravel_
+ 		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", maxCommandRetries_: %d"
+				 ", maxSecondsUncommandedTravel_: %6.3f"
+				 , level
+				 , config.max_command_retries
+				 , config.max_seconds_uncommanded_travel);
+		maxCommandRetries_ = config.max_command_retries;
+		maxSecondsUncommandedTravel_ = config.max_seconds_uncommanded_travel;
+   }
+   
+   if ((level & 32) != 0) {
+		// quadPulsesPerMeter_
+		// quadPulsesPerRevolution_
+ 		ROS_INFO("[MotorController::dynamicConfigurationCallback] "
+				 "level: %d"
+				 ", quadPulsesPerMeter_: %6.3f"
+				 ", quadPulsesPerRevolution_: %6.3f"
+				 , level
+				 , config.quad_pulses_per_meter
+				 , config.quad_pulses_per_revolution);
+		quadPulsesPerMeter_ = config.quad_pulses_per_meter;
+		quadPulsesPerRevolution_ = config.quad_pulses_per_revolution;
+   }
 }
+
 
 MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	: RoboclawController(nh, urdf_model)
@@ -45,13 +164,13 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	, urdf_model_(urdf_model) {
 
 	assert(ros::param::get("motor_controller/control_loop_hz", controlLoopHz_));
-	assert(ros::param::get("motor_controller/m1_p", m1p_));
-	assert(ros::param::get("motor_controller/m1_i", m1i_));
 	assert(ros::param::get("motor_controller/m1_d", m1d_));
+	assert(ros::param::get("motor_controller/m1_i", m1i_));
+	assert(ros::param::get("motor_controller/m1_p", m1p_));
 	assert(ros::param::get("motor_controller/m1_qpps", m1qpps_));
-	assert(ros::param::get("motor_controller/m2_p", m2p_));
-	assert(ros::param::get("motor_controller/m2_i", m2i_));
 	assert(ros::param::get("motor_controller/m2_d", m2d_));
+	assert(ros::param::get("motor_controller/m2_i", m2i_));
+	assert(ros::param::get("motor_controller/m2_p", m2p_));
 	assert(ros::param::get("motor_controller/m2_qpps", m2qpps_));
 	assert(ros::param::get("motor_controller/max_command_retries", maxCommandRetries_));
 	assert(ros::param::get("motor_controller/max_m1_current", maxM1Current_));
@@ -65,13 +184,13 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	assert(ros::param::get("motor_controller/vtime", vtime_));
 	assert(ros::param::get("diff_drive_controller/wheel_radius", wheelRadius_));
 	ROS_INFO("[MotorController::MotorController] motor_controller/control_loop_hz: %6.3f", controlLoopHz_);
-	ROS_INFO("[MotorController::MotorController] motor_controller/m1p: %6.3f", m1p_);
-	ROS_INFO("[MotorController::MotorController] motor_controller/m1i: %6.3f", m1i_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m1d: %6.3f", m1d_);
+	ROS_INFO("[MotorController::MotorController] motor_controller/m1i: %6.3f", m1i_);
+	ROS_INFO("[MotorController::MotorController] motor_controller/m1p: %6.3f", m1p_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m1qpps: %d", m1qpps_);
-	ROS_INFO("[MotorController::MotorController] motor_controller/m2p: %6.3f", m2p_);
-	ROS_INFO("[MotorController::MotorController] motor_controller/m2i: %6.3f", m2i_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m2d: %6.3f", m2d_);
+	ROS_INFO("[MotorController::MotorController] motor_controller/m2i: %6.3f", m2i_);
+	ROS_INFO("[MotorController::MotorController] motor_controller/m2p: %6.3f", m2p_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/m2qpps: %d", m2qpps_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/max_command_retries: %d", maxCommandRetries_);
 	ROS_INFO("[MotorController::MotorController] motor_controller/max_m1_current: %6.3f", maxM1Current_);
@@ -150,6 +269,8 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	statusPublisher_ = nh_.advertise<o_hardware::RoboClawStatus>("/RoboClawStatus", 1);
 	resetEncodersService_ = nh_.advertiseService("reset_encoders", &MotorController::resetEncoders, (MotorController*) this);
 
+	dynamicConfigurationCallback_ = boost::bind(&MotorController::dynamicConfigurationCallback, this, _1, _2);
+	dynamicConfigurationServer_.setCallback(dynamicConfigurationCallback_);
 	if (!simulating) {
 		initHardware();
 	}
@@ -183,6 +304,10 @@ void MotorController::controlLoop() {
 		}
 
 		rate.sleep();
+		if (resetControlLoopHz_) {
+			rate = ros::Rate(controlLoopHz_);
+			resetControlLoopHz_ = false;
+		}
 	}
 }
 
