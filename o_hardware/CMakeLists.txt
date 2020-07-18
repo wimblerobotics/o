@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 2.8.3)
 project(o_hardware)
 
@@ -20,11 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
-  #tf
-  #tf2
-  #tf2_ros
-  #tf2_msgs
-  #tf2_sensor_msgs
   transmission_interface
   urdf
 )
@@ -59,7 +53,6 @@ catkin_package(
   dynamic_reconfigure 
   geometry_msgs 
   message_runtime 
-#  pcl_ros
   rosconsole 
   roscpp 
   rospy 
@@ -98,3 +91,9 @@ target_link_libraries(
   ${catkin_LIBRARIES} 
   boost_system boost_thread
 )
+
+## Install project namespaced headers
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE)
