@@ -1,4 +1,4 @@
-    <!--
+<!--
     Copyright (c) 2019 Michael Wimble
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,23 +19,19 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     -->
-    <launch> 
-      <arg name="doDebug" default="false" />
-      <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
-      <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
-      <arg name="robot_namespace" default="/o" />
-    
-      <group ns="$(arg robot_namespace)">
-    
-        <!-- Start the node -->
-        <node 
-          launch-prefix="$(arg launchPrefix)" 
-          name="move_in_a_rectangle_node" 
-          pkg="o_calibration"  
-          type="move_in_a_rectangle" 
-          output="screen" 
-          respawn="false" >
-        </node>
-    
-      </group>
-    </launch>
+<launch>
+  <arg name="doDebug" default="false" />
+  <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
+  <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
+  <arg name="robot_namespace" default="o" />
+
+  <!-- Launch the sensor/motor stac -->
+  <include 
+    file="$(find o_common)/launch/lidar_odom_motor.launch">
+    <arg name="do_lidar" value="false" />
+    <arg name="robot_namespace" value="$(arg robot_namespace)" />
+  </include>
+
+  <!-- Start the node -->
+  <node launch-prefix="$(arg launchPrefix)" name="move_in_a_rectangle_node" pkg="o_calibration" type="move_in_a_rectangle" output="screen" respawn="false"></node>
+</launch>

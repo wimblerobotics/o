@@ -9,14 +9,16 @@
 #include <ros/console.h>
 #include <string>
 #include <sstream>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <unistd.h>
 #include <vector>
 
+u_long MoveInARectangle::last_odometry_msg_counter_ = 0;
+u_long MoveInARectangle::t265_last_odometry_msg_counter_ = 0;
+
 MoveInARectangle::MoveInARectangle(ros::NodeHandle& nh)
-	: goal_x_(1.0)
-    ,  goal_z_(M_PI)
-    , last_odometry_msg_counter_(0)
-    , t265_last_odometry_msg_counter_(0)
+	: step_x_(1.0)
+    ,  step_z_(M_PI)
     , nh_(nh)
     , prev_(ros::Time::now())
     , start_odometry_found_(false)
@@ -54,6 +56,23 @@ void MoveInARectangle::odometryCallback(const nav_msgs::Odometry::ConstPtr& msg)
 
 void MoveInARectangle::t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& msg) {
     t265_last_odometry_msg_ = *msg;
+    tf::StampedTransform transform;
+    try{
+        transform_listener_.lookupTransform("/t265_pose_frame", "/odom", ros::Time(0), transform);
+        tf::Quaternion q = transform.getRotation();
+        t265_last_odometry_msg_.pose.pose.orientation.x = q.x();
+        t265_last_odometry_msg_.pose.pose.orientation.y = q.y();
+        t265_last_odometry_msg_.pose.pose.orientation.z = q.z();
+        t265_last_odometry_msg_.pose.pose.orientation.w = q.w();
+        //t265_last_odometry_msg_.pose.pose.orientation = tf2::toMsg(transform.getRotation());
+        t265_last_odometry_msg_.pose.pose.position.x = transform.getOrigin().getX();
+        t265_last_odometry_msg_.pose.pose.position.y = transform.getOrigin().getY();
+        t265_last_odometry_msg_.pose.pose.position.z = transform.getOrigin().getZ();
+    }
+    catch (tf::TransformException ex) {
+        ROS_ERROR("%s" ,ex.what());
+    }
+
     t265_last_odometry_msg_counter_++;
     if (!t265_start_odometry_found_) {
         t265_start_odometry_ = *msg;
@@ -63,19 +82,19 @@ void MoveInARectangle::t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& 
 }
 
 
-std::string MoveInARectangle::eulerString(const sensor_msgs::Imu_<std::allocator<void> >::_orientation_type& q, u_long counter) {
+std::string MoveInARectangle::eulerString(const geometry_msgs::Quaternion& q, u_long counter) {
     tf::Quaternion qq(q.x, q.y, q.z, q.w);
     std::stringstream s;
     s << "angle: " << std::setprecision(4);
     if (counter > 0) {
         double yaw = tf::getYaw(qq);
         s << yaw;
-        s << "r (" << ((yaw * 360) / (2 * M_PI)) << "d)";
+        s << "r (" << std::setw(10) << ((yaw * 360) / (2 * M_PI)) << "d)";
         s << std::setprecision(4);
-        s << ", QUAT x: " << q.x;
-        s << ", y: " << q.y;
-        s << ", z: " << q.z;
-        s << ", w: " << q.w;
+        s << ", QUAT x: " << std::setw(10) << q.x;
+        s << ", y: " << std::setw(10) << q.y;
+        s << ", z: " << std::setw(10) << q.z;
+        s << ", w: " << std::setw(10) << q.w;
     } else {
         s << "NO DATA";
     }
@@ -88,67 +107,94 @@ void MoveInARectangle::report() {
     std::stringstream s;
     std::string calibStatus = "??";
 
-    s << "  ODOM angle: " << std::setprecision(2) << eulerString(last_odometry_msg_.pose.pose.orientation, last_odometry_msg_counter_) << std::endl;
+    s << std::endl;
+    s << "     ODOM " << std::setprecision(2) << eulerString(last_odometry_msg_.pose.pose.orientation, last_odometry_msg_counter_);
     if (last_odometry_msg_counter_ > 0) {
-        s << "  ODOM pos x: " << std::setprecision(4) 
-        << last_odometry_msg_.pose.pose.position.x 
+        s << ",       ODOM pos x: " << std::setprecision(4) 
+        << std::setw(10) << last_odometry_msg_.pose.pose.position.x 
         << ", y: " 
-        << last_odometry_msg_.pose.pose.position.y 
+        << std::setw(10) << last_odometry_msg_.pose.pose.position.y 
         << ", z: "
-        << last_odometry_msg_.pose.pose.position.z;
+        << std::setw(10) << last_odometry_msg_.pose.pose.position.z;
     } else {
-        s << "  ODOM NO DATA";
+        s << " ODOM NO DATA";
     }
-    s  << std::endl;
 
+    s << std::endl;
 
-    s << "  t265 ODOM angle: " << std::setprecision(2) << eulerString(t265_last_odometry_msg_.pose.pose.orientation, t265_last_odometry_msg_counter_) << std::endl;
+    s << "t265 ODOM " << std::setprecision(2) << eulerString(t265_last_odometry_msg_.pose.pose.orientation, t265_last_odometry_msg_counter_);
     if (t265_last_odometry_msg_counter_ > 0) {
-        s << "  ODOM pos x: " << std::setprecision(4) 
-        << t265_last_odometry_msg_.pose.pose.position.x 
+        s << ",  t265 ODOM pos x: " << std::setprecision(4) 
+        << std::setw(10) << t265_last_odometry_msg_.pose.pose.position.x 
         << ", y: " 
-        << t265_last_odometry_msg_.pose.pose.position.y 
+       << std::setw(10)  << t265_last_odometry_msg_.pose.pose.position.y 
         << ", z: "
-        << t265_last_odometry_msg_.pose.pose.position.z;
+        << std::setw(10) << t265_last_odometry_msg_.pose.pose.position.z;
     } else {
-        s << "  ODOM NO DATA";
+        s << ", t265  ODOM NO DATA";
     }
-    s  << std::endl;
 
+    s  << std::endl;
 
     ROS_INFO_STREAM("[MoveInARectangle::report] "  << s.str());
 }
 
 
-
-bool MoveInARectangle::run() {
+std::string MoveInARectangle::getStateString(STATE state) {
     std::string state_string = "????";
     double start_yaw = 0.0;
     switch (state_) {
         case kDONE: state_string = "DONE"; break;
         case kFORWARD: state_string = "kFORWARD"; break;
-        case kROTATE_RIGHT: state_string = "kROTATE_RIGHT"; break;
+        case kROTATE_LEFT: state_string = "kROTATE_LEFT"; break;
         case KSTART: state_string = "KSTART"; break;
     }
 
+    return state_string;
+}
+
+std::string MoveInARectangle::reportOdom(bool odometry_found, nav_msgs::Odometry odometry, std::string prefix) {
+    std::stringstream result;
+    double start_yaw = 0.0;
+
+    result << prefix;
+    if (odometry_found > 0) {
+        tf::Quaternion qq(odometry.pose.pose.orientation.x,
+                          odometry.pose.pose.orientation.y, 
+                          odometry.pose.pose.orientation.z, 
+                          odometry.pose.pose.orientation.w);
+        start_yaw = tf::getYaw(qq);
+        result << std::setprecision(4);
+        result << "start x: " << odometry.pose.pose.position.x;
+        result << ", y: " << odometry.pose.pose.position.y;
+        result << ", z: " << odometry.pose.pose.position.z;
+        result << ", start_yaw: " << start_yaw << "r (" << ((start_yaw * 360) / (2 * M_PI)) << "d)";
+    } else {
+        result << "NO ODOM";
+    }
+
+    return result.str();
+}
+
+
+
+bool MoveInARectangle::run() {
     std::stringstream start_goal_string;
-    if (start_odometry_found_ > 0) {
+     double start_yaw = 0.0;
+
+     if (start_odometry_found_ > 0) {
         tf::Quaternion qq(start_odometry_.pose.pose.orientation.x,
                           start_odometry_.pose.pose.orientation.y, 
                           start_odometry_.pose.pose.orientation.z, 
                           start_odometry_.pose.pose.orientation.w);
         start_yaw = tf::getYaw(qq);
-        start_goal_string << std::setprecision(4);
-        start_goal_string << "start x: " << start_odometry_.pose.pose.position.x;
-        start_goal_string << ", y: " << start_odometry_.pose.pose.position.y;
-        start_goal_string << ", z: " << start_odometry_.pose.pose.position.z;
-        start_goal_string << ", start_yaw: " << start_yaw << "r (" << ((start_yaw * 360) / (2 * M_PI)) << "d)";
-    } else {
-        start_goal_string << "NO ODOM";
-    }
+     }
 
+    start_goal_string << reportOdom(start_odometry_found_, start_odometry_, "");
+    start_goal_string << reportOdom(t265_start_odometry_found_, t265_start_odometry_, ", t265_");
     ROS_INFO_STREAM("[MoveInARectangle::run] state: "
-                    << state_string
+                    << getStateString(state_)
+                    << ", "
                     << start_goal_string.str());
 
     switch (state_) {
@@ -158,9 +204,9 @@ bool MoveInARectangle::run() {
         
         case kFORWARD:
             if (last_odometry_msg_counter_ > 0) {
-                double goal_x = start_odometry_.pose.pose.position.x + goal_x_;
+                double goal_x = start_odometry_.pose.pose.position.x + step_x_;
                 double goal_x_to_go =  goal_x - last_odometry_msg_.pose.pose.position.x;
-                ROS_INFO("[MoveInARectangle::run] kFORWARD goal x: %7.4f, x travel to go %7.4f m", 
+                ROS_INFO("[MoveInARectangle::run] kFORWARD goal x: %7.4f, x remaining to go %7.4f m", 
                          goal_x,
                          goal_x_to_go);
                 if (goal_x_to_go > 0) {
@@ -172,7 +218,7 @@ bool MoveInARectangle::run() {
                 } else {
                     // STOP
                     double odometry_x_moved = last_odometry_msg_.pose.pose.position.x - start_odometry_.pose.pose.position.x;
-                    state_ = kROTATE_RIGHT;
+                    state_ = kROTATE_LEFT;
                     ROS_INFO("[MoveInARectangle::run] kFORWARD goal reached, begin rotation. Odometry distance moved: %7.4f.", odometry_x_moved);
                     geometry_msgs::Twist cmd_vel;
                     cmd_vel.linear.x = 0.0;
@@ -184,17 +230,16 @@ bool MoveInARectangle::run() {
 
             break;
         
-        case kROTATE_RIGHT:
+        case kROTATE_LEFT:
             if (last_odometry_msg_counter_ > 0) {
-                // ##### Wait on last_ficucial_pose_msg_counter_
                 tf::Quaternion qq(last_odometry_msg_.pose.pose.orientation.x,
                                   last_odometry_msg_.pose.pose.orientation.y, 
                                   last_odometry_msg_.pose.pose.orientation.z, 
                                   last_odometry_msg_.pose.pose.orientation.w);
                 double current_yaw = tf::getYaw(qq);
-                double goal_z = normalizeRadians(start_yaw + goal_z_);
+                double goal_z = normalizeRadians(start_yaw + step_z_);
                 double goal_z_to_go = normalizeRadians(fabs(current_yaw - goal_z));
-                ROS_INFO("[MoveInARectangle::run] kROTATE_RIGHT Goal z: %7.4fr (%7.4fd), current z: %7.4fr still need to rotate  %7.4fr (%7.4fd)",
+                ROS_INFO("[MoveInARectangle::run] kROTATE_LEFT Goal z: %7.4fr (%7.4fd), current z: %7.4fr still need to rotate  %7.4fr (%7.4fd)",
                          goal_z, 
                          ((goal_z * 360) / (2 * M_PI)), 
                          current_yaw,
@@ -202,7 +247,7 @@ bool MoveInARectangle::run() {
                          ((goal_z_to_go * 360) / (2 * M_PI)));
                 
                 if (fabs(goal_z_to_go) > 0.04) {
-                    ROS_INFO("[MoveInARectangle::run] kROTATE_RIGHT still need to rotate");
+                    ROS_INFO("[MoveInARectangle::run] kROTATE_LEFT still need to rotate");
                     geometry_msgs::Twist cmd_vel;
                     cmd_vel.linear.x = 0.0;
                     cmd_vel.angular.z = 0.4;
@@ -211,7 +256,7 @@ bool MoveInARectangle::run() {
                     // STOP
                     double odometry_delta = current_yaw - start_yaw;
                     state_ = kDONE;
-                    ROS_INFO("[MoveInARectangle::run] kROTATE_RIGHT goal reached, done. Odometry yaw delta: %7.4fr (%7.4fd).",
+                    ROS_INFO("[MoveInARectangle::run] kROTATE_LEFT goal reached, done. Odometry yaw delta: %7.4fr (%7.4fd).",
                              odometry_delta,
                              ((odometry_delta * 360) / (2 * M_PI)));
                     geometry_msgs::Twist cmd_vel;
@@ -227,7 +272,7 @@ bool MoveInARectangle::run() {
         
         case KSTART:
             resetEncoders();
-            if (last_odometry_msg_counter_ > 0) {
+            if ((last_odometry_msg_counter_ > 0) && (t265_last_odometry_msg_counter_ > 0)) {
                 ROS_INFO("[MoveInARectangle::run] Starting. Change goal to kFORWARD");
                 state_ = kFORWARD;
             } else {
@@ -238,6 +283,8 @@ bool MoveInARectangle::run() {
 
         default:
             ROS_INFO("[MoveInARectangle::run] INVALID STATE: %d", state_);
+            report();
+            return false;
             break;
     }
 
@@ -262,18 +309,37 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "move_in_a_rectangle");
 	ros::NodeHandle nh;
 
-	// MoveInARectangle MoveInARectangle(nh);
+	MoveInARectangle moveInARectangle(nh);
 
-	// if (!MoveInARectangle.init()) {
-	// 	ROS_ERROR("[motor_controller_node] MoveInARectangle::init failed");
-	// 	exit(-1);
-	// }
+	if (!moveInARectangle.init()) {
+		ROS_ERROR("[move_in_a_rectangle] MoveInARectangle::init failed");
+		exit(-1);
+	}
 
 	ROS_INFO("[move_in_a_rectangle] starting loop");
     ros::Rate r(10);
 	bool continueGoal = true;
+    bool emit_waiting_odometry_message = true;
+    bool emit_waiting_t265_odometry_message = true;
 	while (continueGoal && ros::ok()) {
-		// continueGoal = MoveInARectangle.run();
+        if (! moveInARectangle.odomMessagesReceived()) {
+            if (emit_waiting_odometry_message) {
+                ROS_INFO("[MoveInARectangle] waiting on first odometry message");
+                emit_waiting_odometry_message = false;
+            }
+        }
+
+        if (! moveInARectangle.t265OdomMessagesReceived()) {
+            if (emit_waiting_t265_odometry_message) {
+                ROS_INFO("[MoveInARectangle] waiting on first t265 odometry message");
+                emit_waiting_t265_odometry_message = false;
+            }
+        }
+
+        if (moveInARectangle.odomMessagesReceived() && moveInARectangle.t265OdomMessagesReceived()) {
+            continueGoal = moveInARectangle.run();
+        }
+
         ros::spinOnce();
         r.sleep();
 	}
