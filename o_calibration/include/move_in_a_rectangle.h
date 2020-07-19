@@ -45,7 +45,8 @@ private:
     ros::Subscriber odometry_subscriber_;       // Subscriber to nav_msgs/odometry message.
     ros::Subscriber t265_odometry_subscriber_;  // Subscriber to nav_msgs/odometry message.
 
-    tf::TransformListener transform_listener_;
+    tf2_ros::Buffer tf_buffer_;
+    tf2_ros::TransformListener tf2_listener_;
     
     static u_long last_odometry_msg_counter_;
     nav_msgs::Odometry last_odometry_msg_;

@@ -23,7 +23,8 @@ MoveInARectangle::MoveInARectangle(ros::NodeHandle& nh)
     , prev_(ros::Time::now())
     , start_odometry_found_(false)
     , t265_start_odometry_found_(false)
-    , state_(KSTART) {
+    , state_(KSTART)
+    , tf2_listener_(tf_buffer_) {
     resetEncodersService_ = nh.serviceClient<o_hardware::ResetEncoders>("reset_encoders");
     cmd_vel_publisher_ = nh.advertise<geometry_msgs::Twist>("/o/diff_drive_controller/cmd_vel", 1);
     odometry_subscriber_ = nh_.subscribe<nav_msgs::Odometry>("o/diff_drive_controller/odom", 10, boost::bind(&MoveInARectangle::odometryCallback, this, _1));
@@ -56,18 +57,21 @@ void MoveInARectangle::odometryCallback(const nav_msgs::Odometry::ConstPtr& msg)
 
 void MoveInARectangle::t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& msg) {
     t265_last_odometry_msg_ = *msg;
-    tf::StampedTransform transform;
+    //tf::StampedTransform transform;
     try{
-        transform_listener_.lookupTransform("/t265_pose_frame", "/odom", ros::Time(0), transform);
-        tf::Quaternion q = transform.getRotation();
-        t265_last_odometry_msg_.pose.pose.orientation.x = q.x();
-        t265_last_odometry_msg_.pose.pose.orientation.y = q.y();
-        t265_last_odometry_msg_.pose.pose.orientation.z = q.z();
-        t265_last_odometry_msg_.pose.pose.orientation.w = q.w();
-        //t265_last_odometry_msg_.pose.pose.orientation = tf2::toMsg(transform.getRotation());
-        t265_last_odometry_msg_.pose.pose.position.x = transform.getOrigin().getX();
-        t265_last_odometry_msg_.pose.pose.position.y = transform.getOrigin().getY();
-        t265_last_odometry_msg_.pose.pose.position.z = transform.getOrigin().getZ();
+        geometry_msgs::PoseStamped t265_pose;
+
+        t265_pose.header = t265_last_odometry_msg_.header;
+        t265_pose.pose = t265_last_odometry_msg_.pose.pose;
+
+        //ROS_INFO(" in: x: %f, y: %f, z: %f", msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z);
+
+        geometry_msgs::TransformStamped t265_pose_frame_to_base_link;
+        t265_pose_frame_to_base_link = tf_buffer_.lookupTransform("base_link", "t265_pose_frame", ros::Time(0), ros::Duration(1.0) );
+        tf2::doTransform(t265_pose, t265_pose, t265_pose_frame_to_base_link); 
+        //ROS_INFO("tf2-out: x: %f, y: %f, z: %f", t265_pose.pose.position.x, t265_pose.pose.position.y, t265_pose.pose.position.z);
+        
+        t265_last_odometry_msg_.pose.pose = t265_pose.pose;
     }
     catch (tf::TransformException ex) {
         ROS_ERROR("%s" ,ex.what());
@@ -85,6 +89,8 @@ void MoveInARectangle::t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& 
 std::string MoveInARectangle::eulerString(const geometry_msgs::Quaternion& q, u_long counter) {
     tf::Quaternion qq(q.x, q.y, q.z, q.w);
     std::stringstream s;
+
+    s.flags(std::ios::fixed);
     s << "angle: " << std::setprecision(4);
     if (counter > 0) {
         double yaw = tf::getYaw(qq);
@@ -107,6 +113,7 @@ void MoveInARectangle::report() {
     std::stringstream s;
     std::string calibStatus = "??";
 
+    s.flags(std::ios::fixed);
     s << std::endl;
     s << "     ODOM " << std::setprecision(2) << eulerString(last_odometry_msg_.pose.pose.orientation, last_odometry_msg_counter_);
     if (last_odometry_msg_counter_ > 0) {
