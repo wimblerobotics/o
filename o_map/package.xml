@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>o_map</name>
+  <version>0.1.1</version>
+  <description>Wimble Robotics Miranda map bringup</description>
+
+  <author email="mike@wimblerobotics.com">Michael Wimble</author>
+  
+  <maintainer email="mike@wimblerobotics.com">Michael Wimble</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">http://wimblerobotics.com</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>map_server</depend>
+  <build_depend>roslaunch</build_depend>
+</package>

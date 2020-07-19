@@ -1,0 +1,83 @@
+<!--
+Copyright (c) 2020 Michael Wimble
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<launch>
+
+    <arg name="initial_pose_x"  default="-0.00596" />
+    <arg name="initial_pose_y"  default="0.379" />
+    <arg name="initial_pose_z"  default="1.5707963268" />
+    <arg name="machine"         default="nxa" />
+    <arg name="odom_frame_id"   default="t265_odom_frame" />
+    <arg name="scan_topic"      default="/o/scan" />
+    <arg name="use_map_topic"   default="true"/>
+  
+    <include file="$(find o_common)/launch/machines.xml" />
+    
+    <node 
+      machine="$(arg machine)"
+      name="amcl"
+      output="screen"
+      pkg="amcl" 
+      type="amcl"  >
+      <!--param name="base_frame_id" value="/base_footprint"/-->
+      <param name="first_map_only" value="false" />
+      <param name="gui_publish_rate" value="1.0"/>
+      <param name="initial_pose_x" value="$(arg initial_pose_x)" />
+      <param name="initial_pose_y" value="$(arg initial_pose_y)" />
+      <param name="initial_pose_z" value="$(arg initial_pose_z)" />
+      <param name="kld_err" value="0.01"/> <!-- 0.01 -->
+      <param name="kld_z" value="0.99"/>
+      <param name="laser_lambda_short" value="0.1"/>
+      <param name="laser_likelihood_max_dist" value="2.0" />
+      <param name="laser_max_beams" value="360"/>
+      <param name="laser_max_range" value="8.0"/>
+      <param name="laser_min_range" value="0.06"/>
+      <param name="laser_model_type" value="likelihood_field"/> 
+      <param name="laser_sigma_hit" value="0.1"/>
+      <param name="laser_z_hit" value="0.9"/>
+      <param name="laser_z_max" value="0.05"/>
+      <param name="laser_z_rand" value="0.5"/>
+      <param name="laser_z_short" value="0.1"/>
+      <param name="laser_likelihood_max_dist" value="4.0"/> <!-- 5.00 -->
+      <param name="max_particles" value="5000"/> <!-- 1000 -->
+      <param name="min_particles" value="500"/>
+      <param name="odom_alpha1" value="0.01"/> <!-- 0.8 -->
+      <param name="odom_alpha2" value="0.01"/> <!-- 0.8 -->
+      <param name="odom_alpha3" value="0.01"/>
+      <param name="odom_alpha4" value="0.01"/>
+      <param name="odom_alpha5" value="0.01"/>
+      <param name="odom_frame_id" value="$(arg odom_frame_id)"/>
+      <param name="odom_model_type" value="diff"/>
+      <param name="recovery_alpha_slow" value="0.001"/>
+      <param name="recovery_alpha_fast" value="0.1"/>
+      <param name="resample_interval" value="2"/> <!-- 2 -->
+      <param name="save_pose_rate" value="0.5" />
+      <param name="tf_broadcast" value="true" />
+      <param name="transform_tolerance" value="0.5" /> <!-- 0.5 -->
+      <param name="update_min_a" value="0.1"/>
+      <param name="update_min_d" value="0.05"/>
+      <param name="use_map_topic" value="$(arg use_map_topic)"/>
+      <remap from="scan" to="$(arg scan_topic)"/>
+    </node>
+    
+  </launch>
+  

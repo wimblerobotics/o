@@ -1,0 +1,6 @@
+resolution: 0.014788221343874
+origin: [-1.5, -11.5, 0.0]
+occupied_thresh: 0.65
+free_thresh: 0.196
+negate: 0
+image: 1144SnowberryCourtv18e.jpg
