@@ -38,4 +38,10 @@ SOFTWARE.
     <include
         file="$(find o_common)/launch/amcl.launch">
     </include>
+
+    <!-- Bring up move_base -->
+    <include 
+        file="$(find o_common)/launch/move_base.launch" >
+        <arg name="machine" value="nxa" />
+    </include>
 </launch>

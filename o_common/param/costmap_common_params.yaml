@@ -1,0 +1,43 @@
+
+#footprint: [[-0.29, -0.22], [-0.29, 0.20], [0.26, 0.20], [0.26, -0.22]]
+footprint: [[-0.31, -0.24], [-0.31, 0.22], [0.28, 0.22], [0.28, -0.24]]
+footprint_padding: .0508
+resolution: 0.014788221343874
+
+robot_base_frame: base_link
+transform_tolerance: 0.5
+
+inflation_layer:
+  cost_scaling_factor: 2.58   # 0.0 .. 100
+  enabled: true               # true/false
+  inflation_radius: 1.75
+  inflate_unknown: false
+
+obstacle_layer:
+  combination_method: 1                 # 0 - overwrite, 1 - Maximum
+  enabled: true                         # true/false
+  footprint_clearing_enabled: true     # true/false
+  inf_is_valid: true #false
+  laser_scan_sensor: { clearing: true, data_type: LaserScan, expected_update_rate: 2.0, marking: true, sensor_frame: 'scan', topic: '/o/scan' }
+  max_obstacle_height: 2.0              # 0.0 .. 50
+  min_obstacle_height: 0.0
+  observation_sources: laser_scan_sensor
+  observation_persistence: 0.1
+  obstacle_range: 3.5
+  raytrace_range: 5.0
+  transform_tolerance: 0.5
+  track_unknown_space: true     # If false, each pixel has one of 2 states: lethal obstacle or free. If true, each pixel has one of 3 states: lethal obstacle, free, or unknown.
+
+static_map:
+  enabled: true                 # true/false
+  cost_scaling_factor: 2.58
+  first_map_only: false         # Only subscribe to the first message on the map topic, ignoring all subsequent message. (false)
+  lethal_cost_threshold: 100    # The threshold value at which to consider a cost lethal when reading in a map from the map server. (100)
+  map_topic: /map      # The topic that the costmap subscribes to for the static map. (map)
+  subscribe_to_updates: false   # In addition to map_topic, also subscribe to map_topic + "_updates". (false)
+  track_unknown_space: true     # If true, unknown values in the map messages are translated directly to the layer. (true)
+  trinary_costmap: true         # If true, translates all map message values to NO_INFORMATION/FREE_SPACE/LETHAL_OBSTACLE (three values). 
+                                # If false, a full spectrum of intermediate values is possible.
+
+  unknown_cost_value: 253       # The value for which a cost should be considered unknown when reading in a map from the map server. (-1)
+  use_maximum: false            # Only matters if the static layer is not the bottom layer. If true, only the maximum value will be written to the master costmap.
