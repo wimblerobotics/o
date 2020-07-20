@@ -5,12 +5,12 @@ footprint_padding: .0508
 resolution: 0.014788221343874
 
 robot_base_frame: base_link
-transform_tolerance: 0.5
+transform_tolerance: 0.9
 
 inflation_layer:
   cost_scaling_factor: 2.58   # 0.0 .. 100
   enabled: true               # true/false
-  inflation_radius: 1.75
+  inflation_radius: 0.2
   inflate_unknown: false
 
 obstacle_layer:
