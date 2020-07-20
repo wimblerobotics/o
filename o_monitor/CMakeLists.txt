@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  tf
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
@@ -37,7 +38,8 @@ catkin_package(
 
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/../devel/include/
+   ${catkin_INCLUDE_DIRS}
 )
 
 add_executable (
