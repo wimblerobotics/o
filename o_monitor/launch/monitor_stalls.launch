@@ -36,8 +36,8 @@
         launch-prefix="$(arg launchPrefix)" 
         name="monitor_stalls_node" 
         pkg="o_monitor" 
-        type="monitor_stalls_node" o
-        utput="screen" 
+        type="monitor_stalls_node"
+        output="screen" 
         respawn="false">
     </node>
 </launch>

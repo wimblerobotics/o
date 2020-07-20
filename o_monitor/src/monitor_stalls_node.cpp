@@ -5,9 +5,7 @@
 #include <tf/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-
 tf2_ros::Buffer tf_buffer;
-tf2_ros::TransformListener tf2_listener(tf_buffer);
 
 ros::Subscriber odometry_subscriber;       // Subscriber to nav_msgs/odometry message.
 ros::Subscriber roboclawStatus_subscriber; 
@@ -50,13 +48,15 @@ void t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& msg) {
     }
 
     t265_last_odometry_msg_counter++;
-    ROS_INFO("[MoveInARectangle::t265OdometryCallback] message received counter:: %lu", last_odometry_msg_counter);
+    ROS_INFO("[t265OdometryCallback] message received counter:: %lu", t265_last_odometry_msg_counter);
 }
 
 
 int main(int argc, char** argv) {
 	ros::init(argc, argv, "move_in_a_rectangle");
 	ros::NodeHandle nh;
+
+    tf2_ros::TransformListener tf2_listener(tf_buffer);
 
     roboclawStatus_subscriber = nh.subscribe<o_hardware::RoboClawStatus>("RoboClawStatus", 10, roboclawStatusCallback);
     odometry_subscriber = nh.subscribe<nav_msgs::Odometry>("o/diff_drive_controller/odom", 10, odometryCallback);

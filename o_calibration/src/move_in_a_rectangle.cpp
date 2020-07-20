@@ -82,7 +82,7 @@ void MoveInARectangle::t265OdometryCallback(const nav_msgs::Odometry::ConstPtr& 
         t265_start_odometry_ = *msg;
         t265_start_odometry_found_ = true;
     }
-    //ROS_INFO("[MoveInARectangle::t265OdometryCallback] message received counter:: %lu", last_odometry_msg_counter_);
+    //ROS_INFO("[MoveInARectangle::t265OdometryCallback] message received counter:: %lu", t265_last_odometry_msg_counter);
 }
 
 
