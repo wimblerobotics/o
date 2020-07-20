@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>o_monitor</name>
+    <version>0.0.0</version>
+    <description>Wimble Robotics robot "O" monitor package</description>
+    <maintainer email="mike@wimblerobotics.com">pi</maintainer>
+    <license>MIT</license>
+    <url type="website">https://github.com/wimblerobotics/o/wiki</url> -->
+    <author email="mike@wimblerobotics.com">Michael Wimble</author> -->
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>geometry_msgs</depend>
+    <depend>o_hardware</depend>
+    <depend>rosconsole</depend>
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>sensor_msgs</depend>
+    <depend>std_msgs</depend>
+</package>
