@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 Michael Wimble
+# Copyright (c) 2020 Michael Wimble
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,6 @@ topics:
   priority: 10
 -
   name    : joystick
-  topic   : "/o/diff_drive_controller/joystick_cmd_vel"
+  topic   : "/o2020/diff_drive_controller/joystick_cmd_vel"
   timeout : 0.5
   priority: 100

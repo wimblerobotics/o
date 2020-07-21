@@ -2,13 +2,10 @@
 #define __MOVE_IN_A_RECTANGLE__
 
 #include <ros/ros.h>
-// #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include <math.h>
 #include <nav_msgs/Odometry.h>
 #include <string>
 #include <tf/transform_listener.h>
-// #include <tf/transform_datatypes.h>
-// #include <visualization_msgs/Marker.h>
 
 class MoveInARectangle {
 public:

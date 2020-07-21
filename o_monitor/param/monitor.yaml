@@ -1,0 +1,2 @@
+monitor:
+  odom_max_valid_distance_from_t265_odom: 0.25

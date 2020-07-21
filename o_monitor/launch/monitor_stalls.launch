@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2019 Michael Wimble
+    Copyright (c) 2020 Michael Wimble
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,19 @@
     <arg name="doDebug" default="false" />
     <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
     <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
+
+    <arg name="do_lidar_odom_motor" default="true" />>
     <arg name="robot_namespace" default="o" />
 
-    <!-- Launch the sensor/motor stac -->
-    <include file="$(find o_common)/launch/lidar_odom_motor.launch">
+    <!-- Launch the sensor/motor stack -->
+    <include 
+        if="$(arg do_lidar_odom_motor)"
+        file="$(find o_common)/launch/lidar_odom_motor.launch">
         <arg name="do_lidar" value="false" />
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
+
+    <rosparam file="$(find o_monitor)/param/monitor.yaml" command="load" />
 
     <!-- Start the node -->
     <node 
