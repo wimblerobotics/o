@@ -19,13 +19,13 @@ nav_msgs::Odometry last_odometry_msg;
 u_long t265_last_odometry_msg_counter = 0;
 nav_msgs::Odometry t265_last_odometry_msg;
 
-u_long last_roboclawStatus_msg_counter = 0;
+u_long last_roboClawStatus_msg_counter = 0;
 o_msgs::RoboClawStatus last_roboClawStatus_msg;
 
 
 void roboclawStatusCallback(const o_msgs::RoboClawStatus::ConstPtr& msg) {
     last_roboClawStatus_msg = *msg;
-    last_roboclawStatus_msg_counter++;
+    last_roboClawStatus_msg_counter++;
 }
 
 void odometryCallback(const nav_msgs::Odometry::ConstPtr& msg) {
@@ -49,8 +49,22 @@ void odometryCallback(const nav_msgs::Odometry::ConstPtr& msg) {
             sqrt((tf.getOrigin()[0] * tf.getOrigin()[0]) +
                  (tf.getOrigin()[1] * tf.getOrigin()[1]))
         );
+
+
+        if (last_roboClawStatus_msg_counter > 0) {
+            ROS_INFO("[odometryCallback] m1MotorCurrent: %f, m1MotorCurrent: %f"
+                     , last_roboClawStatus_msg.m1MotorCurrent
+                     , last_roboClawStatus_msg.m2MotorCurrent);
+        }
     }
 
+    //###TODO: Also sense on t265_last_odometry_msg change.
+    //###TODO: When distance > some_delta, capture clock and if too far after some time, correct odom.
+    //###TODO: Change ResetEncoders to allow x,y,z,w inputs
+    //###TODO: Also monitor out-of-range motor currents
+    //###NOTE: Non-stall motor currents about 0-1.22 (typ 0.3) m1, 0-1.2 (typ 0.4) m2
+    //###NOTE: Stall motor currents 1.8-7.4 (typ 3.4) m1, 1.4-3.3 (typ 2.8) m2
+    
     last_odometry_msg = *msg;
     last_odometry_msg_counter++;
 }
