@@ -17,6 +17,8 @@
     <depend>joint_limits_interface</depend>
     <depend>message_generation</depend>
     <depend>message_runtime</depend>
+    <depend>nav_msgs</depend>
+    <depend>o_msgs</depend>
     <depend>rosconsole</depend>
     <depend>roscpp</depend>
     <depend>rospy</depend>

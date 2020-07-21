@@ -8,12 +8,13 @@ set (CMAKE_CXX_FLAGS "-g")
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  o_msgs
   controller_manager
   dynamic_reconfigure
   geometry_msgs
   hardware_interface
   message_generation
-  #nav_msgs
+  nav_msgs
   rosconsole
   roscpp
   rospy
@@ -26,21 +27,21 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  RoboClawStatus.msg
-)
+#add_message_files(
+#  FILES
+#  RoboClawStatus.msg
+#)
 
-add_service_files(
-  FILES
-  ResetEncoders.srv
-)
+#add_service_files(
+#  FILES
+#  ResetEncoders.srv
+#)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#)
 
 ## Genrate dynamic reconfiguration files
 generate_dynamic_reconfigure_options(
@@ -49,7 +50,8 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
+  o_msgs
   dynamic_reconfigure 
   geometry_msgs 
   message_runtime 
@@ -93,7 +95,9 @@ target_link_libraries(
 )
 
 ## Install project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
+install(
+  DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE)
+  PATTERN ".svn" EXCLUDE
+)

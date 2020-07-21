@@ -8,7 +8,9 @@ set (CMAKE_CXX_FLAGS "-g")
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  o_msgs
   geometry_msgs
+  nav_msgs
   rosconsole
   roscpp
   rospy
@@ -20,10 +22,11 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS 
+#  INCLUDE_DIRS include
+  CATKIN_DEPENDS
+  o_msgs
   geometry_msgs 
-  o_hardware
+  message_runtime
   rosconsole 
   roscpp 
   rospy 
@@ -32,13 +35,18 @@ catkin_package(
   LIBRARIES ${PROJECT_NAME}
 )
 
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
 ###########
 ## Build ##
 ###########
 
 include_directories(
 #  include
-  ${CMAKE_SOURCE_DIR}/../devel/include/
+#  ${CMAKE_SOURCE_DIR}/../devel/include/
    ${catkin_INCLUDE_DIRS}
 )
 
@@ -50,7 +58,6 @@ add_executable (
 add_dependencies(
   monitor_stalls_node
   ${PROJECT_NAME}_generate_messages_cpp
-  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
 

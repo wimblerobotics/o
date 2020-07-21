@@ -1,5 +1,5 @@
 #include "motor_controller.h"
-#include "o_hardware/RoboClawStatus.h"
+#include "o_msgs/RoboClawStatus.h"
 
 #include <boost/assign.hpp>
 #include <fcntl.h>
@@ -266,7 +266,7 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
 	expectedControlLoopDuration_ = ros::Duration(1 / controlLoopHz_);
 
-	statusPublisher_ = nh_.advertise<o_hardware::RoboClawStatus>("/RoboClawStatus", 1);
+	statusPublisher_ = nh_.advertise<o_msgs::RoboClawStatus>("/RoboClawStatus", 1);
 	resetEncodersService_ = nh_.advertiseService("reset_encoders", &MotorController::resetEncoders, (MotorController*) this);
 
 	dynamicConfigurationCallback_ = boost::bind(&MotorController::dynamicConfigurationCallback, this, _1, _2);
@@ -282,10 +282,10 @@ void MotorController::initHardware() {
 	openPort();	
 	setM1PID(m1p_, m1i_, m1d_, m1qpps_);
 	setM2PID(m2p_, m2i_, m2d_, m2qpps_);
-	o_hardware::ResetEncoders::Request resetRequest;
+	o_msgs::ResetEncoders::Request resetRequest;
 	resetRequest.left = 0;
 	resetRequest.right = 0;
-	o_hardware::ResetEncoders::Response response;
+	o_msgs::ResetEncoders::Response response;
 	resetEncoders(resetRequest, response);
 	ROS_INFO("[MotorController::MotorController] RoboClaw software version: %s", getVersion().c_str());
 }
@@ -933,7 +933,7 @@ void MotorController::openPort() {
 
 
 void MotorController::publishStatus() {
-	o_hardware::RoboClawStatus roboClawStatus;
+	o_msgs::RoboClawStatus roboClawStatus;
     static uint32_t sequenceCount = 0;
 	try {
 		roboClawStatus.logicBatteryVoltage = getLogicBatteryLevel();
@@ -1060,8 +1060,8 @@ uint8_t MotorController::readByteWithTimeout() {
 }
 
 
-bool MotorController::resetEncoders(o_hardware::ResetEncoders::Request &request,
-                       				o_hardware::ResetEncoders::Response &response) {
+bool MotorController::resetEncoders(o_msgs::ResetEncoders::Request &request,
+                       				o_msgs::ResetEncoders::Response &response) {
 	try {
 		SetEncoder(kSETM1ENCODER, request.left);
 		SetEncoder(kSETM2ENCODER, request.right);

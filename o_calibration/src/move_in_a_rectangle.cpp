@@ -5,7 +5,7 @@
 #include <geometry_msgs/Twist.h>
 #include <iomanip>      // std::setprecision
 #include <iostream>
-#include <o_hardware/ResetEncoders.h>
+#include <o_msgs/ResetEncoders.h>
 #include <ros/console.h>
 #include <string>
 #include <sstream>
@@ -25,7 +25,7 @@ MoveInARectangle::MoveInARectangle(ros::NodeHandle& nh)
     , t265_start_odometry_found_(false)
     , state_(KSTART)
     , tf2_listener_(tf_buffer_) {
-    resetEncodersService_ = nh.serviceClient<o_hardware::ResetEncoders>("reset_encoders");
+    resetEncodersService_ = nh.serviceClient<o_msgs::ResetEncoders>("reset_encoders");
     cmd_vel_publisher_ = nh.advertise<geometry_msgs::Twist>("/o/diff_drive_controller/cmd_vel", 1);
     odometry_subscriber_ = nh_.subscribe<nav_msgs::Odometry>("o/diff_drive_controller/odom", 10, boost::bind(&MoveInARectangle::odometryCallback, this, _1));
     t265_odometry_subscriber_ = nh_.subscribe<nav_msgs::Odometry>("/t265/odom/sample", 10, boost::bind(&MoveInARectangle::t265OdometryCallback, this, _1));
@@ -302,7 +302,7 @@ bool MoveInARectangle::run() {
 
 void MoveInARectangle::resetEncoders() {
     try {
-        o_hardware::ResetEncoders values;
+        o_msgs::ResetEncoders values;
         values.request.left = 0;
         values.request.right = 0;
         resetEncodersService_.call(values);

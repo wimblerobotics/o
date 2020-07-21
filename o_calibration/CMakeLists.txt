@@ -8,13 +8,14 @@ set (CMAKE_CXX_FLAGS "-g")
 add_definitions(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  o_msgs
   geometry_msgs
   rosconsole
   roscpp
+  nav_msgs
   sensor_msgs
   std_msgs
   tf
-#  o_hardware
 )
 
 find_package(Boost REQUIRED COMPONENTS
@@ -22,34 +23,18 @@ find_package(Boost REQUIRED COMPONENTS
   thread
 )
 
-message(STATUS "##### 1")
-#find_package(catkin 
-#    REQUIRED COMPONENTS
-#    o_hardware)
-message(STATUS "#####2 o_hardware_INCLUDE_DIRS: ${o_hardware_INCLUDE_DIRS}")
-
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS 
   geometry_msgs
-  o_hardware
+  nav_msgs
+  o_msgs
   rosconsole 
   roscpp  
   sensor_msgs 
   std_msgs 
   LIBRARIES ${PROJECT_NAME}
 )
-
-message(STATUS "##### o_hardware_INCLUDE_DIRS: ${o_hardware_INCLUDE_DIRS}")
-message(STATUS "##### o_hardware_INCLUDES: ${o_hardware_INCLUDES}")
-message(STATUS "##### CATKIN_PACKAGE_INCLUDE_DESTINATION: ${CATKIN_PACKAGE_INCLUDE_DESTINATION}")
-message(STATUS "##### catkin_INCLUDE_DIRS: ${catkin_INCLUDE_DIRS}")
-message(STATUS "##### catkin_EXPORTED_TARGETS: ${catkin_EXPORTED_TARGETS}")
-
-message(STATUS "##### CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
-message(STATUS "##### CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "##### CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-message(STATUS "##### PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 
 ###########
 ## Build ##

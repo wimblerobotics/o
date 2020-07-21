@@ -5,7 +5,7 @@
 #include <boost/thread/mutex.hpp>
 #include <dynamic_reconfigure/server.h>
 #include "o_hardware/motor_controllerConfig.h"
-#include "o_hardware/ResetEncoders.h"
+#include "o_msgs/ResetEncoders.h"
 #include "hardware_interface/joint_command_interface.h"
 #include "hardware_interface/joint_state_interface.h"
 #include "roboclaw_controller.h"
@@ -260,8 +260,8 @@ private:
 	void publishStatus();
 
 	// Reset the encoders.
-	bool resetEncoders(o_hardware::ResetEncoders::Request &request,
-                       o_hardware::ResetEncoders::Response &response);
+	bool resetEncoders(o_msgs::ResetEncoders::Request &request,
+                       o_msgs::ResetEncoders::Response &response);
 					   
 	// Set the PID for motor M1.
 	void setM1PID(float p, float i, float d, uint32_t qpps);
