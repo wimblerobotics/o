@@ -1003,8 +1003,8 @@ void MotorController::publishStatus() {
 void MotorController::read(const ros::Time& time, const ros::Duration& period) {
 	int32_t m1Encoder = getM1Encoder();
 	int32_t m2Encoder = getM2Encoder();
-	double m1Radians = (m1Encoder / quadPulsesPerRevolution_) * 2.0 * M_PI;
-	double m2Radians = (m2Encoder / quadPulsesPerRevolution_) * 2.0 * M_PI;
+	double m1Radians = (m1Encoder * 1.0 / quadPulsesPerRevolution_) * 2.0 * M_PI;
+	double m2Radians = (m2Encoder * 1.0 / quadPulsesPerRevolution_) * 2.0 * M_PI;
 	
 	jointPosition_[0] = m1Radians;
 	jointPosition_[1] = m2Radians;
@@ -1063,8 +1063,13 @@ uint8_t MotorController::readByteWithTimeout() {
 bool MotorController::resetEncoders(o_msgs::ResetEncoders::Request &request,
                        				o_msgs::ResetEncoders::Response &response) {
 	try {
+		double m1Radians = (request.left * 1.0 / quadPulsesPerRevolution_) * (2.0 * M_PI);
+		double m2Radians = (request.right * 1.0 / quadPulsesPerRevolution_) * (2.0 * M_PI);
+		
 		SetEncoder(kSETM1ENCODER, request.left);
 		SetEncoder(kSETM2ENCODER, request.right);
+		jointPosition_[0] = m1Radians;
+		jointPosition_[1] = m2Radians;
 		response.ok = true;
 	} catch (...) {
 		ROS_ERROR("[MotorController::resetEncoders] uncaught exception");
