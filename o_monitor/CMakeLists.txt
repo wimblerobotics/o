@@ -57,7 +57,6 @@ add_executable (
 
 add_dependencies(
   monitor_stalls_node
-  ${PROJECT_NAME}_generate_messages_cpp
   ${catkin_EXPORTED_TARGETS}
 )
 

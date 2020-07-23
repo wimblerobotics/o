@@ -25,6 +25,7 @@
     <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
 
     <arg name="do_lidar_odom_motor" default="true" />>
+    <arg name="machine" default="nxa" />
     <arg name="robot_namespace" default="o" />
 
     <!-- Launch the sensor/motor stack -->
@@ -35,15 +36,19 @@
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
 
-    <rosparam file="$(find o_monitor)/param/monitor.yaml" command="load" />
-
     <!-- Start the node -->
-    <node 
-        launch-prefix="$(arg launchPrefix)" 
-        name="monitor_stalls_node" 
-        pkg="o_monitor" 
-        type="monitor_stalls_node"
-        output="screen" 
-        respawn="false">
-    </node>
+    <group ns="$(arg robot_namespace)">
+        <include file="$(find o_common)/launch/machines.xml" />
+        <rosparam file="$(find o_monitor)/param/monitor.yaml" command="load" />
+
+        <node 
+            launch-prefix="$(arg launchPrefix)" 
+            machine="$(arg machine)"
+            name="monitor_stalls_node" 
+            pkg="o_monitor" 
+            type="monitor_stalls_node"
+            output="screen" 
+            respawn="false">
+        </node>
+    </group>
 </launch>

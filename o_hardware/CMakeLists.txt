@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   geometry_msgs
   hardware_interface
-  message_generation
   nav_msgs
   rosconsole
   roscpp
@@ -25,23 +24,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
-
-## Generate messages in the 'msg' folder
-#add_message_files(
-#  FILES
-#  RoboClawStatus.msg
-#)
-
-#add_service_files(
-#  FILES
-#  ResetEncoders.srv
-#)
-
-## Generate added messages and services with any dependencies listed here
-#generate_messages(
-#  DEPENDENCIES
-#  std_msgs
-#)
 
 ## Genrate dynamic reconfiguration files
 generate_dynamic_reconfigure_options(
@@ -83,7 +65,6 @@ add_executable (
 
 add_dependencies(
   motor_controller_node
-  ${PROJECT_NAME}_generate_messages_cpp
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )

@@ -23,7 +23,11 @@
   <arg name="doDebug" default="false" />
   <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
   <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
+
+  <arg name="machine" default="nxa" />
   <arg name="robot_namespace" default="o" />
+
+  <include file="$(find o_common)/launch/machines.xml" />
 
   <!-- Launch the sensor/motor stac -->
   <include 
@@ -33,5 +37,12 @@
   </include>
 
   <!-- Start the node -->
-  <node launch-prefix="$(arg launchPrefix)" name="move_in_a_rectangle_node" pkg="o_calibration" type="move_in_a_rectangle" output="screen" respawn="false"></node>
+  <node 
+    launch-prefix="$(arg launchPrefix)" 
+    machine="$(arg machine)"
+    name="move_in_a_rectangle_node" 
+    pkg="o_calibration" 
+    type="move_in_a_rectangle" 
+    output="screen" 
+    respawn="false"></node>
 </launch>
