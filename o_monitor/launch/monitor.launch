@@ -44,9 +44,9 @@
         <node 
             launch-prefix="$(arg launchPrefix)" 
             machine="$(arg machine)"
-            name="monitor_stalls_node" 
+            name="monitor_node" 
             pkg="o_monitor" 
-            type="monitor_stalls_node"
+            type="monitor_node"
             output="screen" 
             respawn="false">
         </node>

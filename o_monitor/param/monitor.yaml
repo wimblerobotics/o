@@ -1,2 +1,7 @@
 monitor:
-  odom_max_valid_distance_from_t265_odom: 0.25
+  # When any motor current exceeds this many amps, signal an alert
+  motor_current_max: 6.0
+
+  # When wheel odometry vector differs from visual odometry by this much, signal an alert.
+  odom_max_valid_distance_from_t265_odom: 0.1 
+

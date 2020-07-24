@@ -51,17 +51,17 @@ include_directories(
 )
 
 add_executable (
-  monitor_stalls_node
-  src/monitor_stalls_node.cpp
+  monitor_node
+  src/monitor_node.cpp
 )
 
 add_dependencies(
-  monitor_stalls_node
+  monitor_node
   ${catkin_EXPORTED_TARGETS}
 )
 
 target_link_libraries(
-  monitor_stalls_node
+  monitor_node
   ${catkin_LIBRARIES} 
   boost_system boost_thread
 )

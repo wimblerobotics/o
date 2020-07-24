@@ -266,7 +266,7 @@ MotorController::MotorController(ros::NodeHandle &nh, urdf::Model *urdf_model)
 	controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
 	expectedControlLoopDuration_ = ros::Duration(1 / controlLoopHz_);
 
-	statusPublisher_ = nh_.advertise<o_msgs::RoboClawStatus>("/RoboClawStatus", 1);
+	statusPublisher_ = nh_.advertise<o_msgs::RoboClawStatus>("RoboClawStatus", 1);
 	resetEncodersService_ = nh_.advertiseService("reset_encoders", &MotorController::resetEncoders, (MotorController*) this);
 
 	dynamicConfigurationCallback_ = boost::bind(&MotorController::dynamicConfigurationCallback, this, _1, _2);
