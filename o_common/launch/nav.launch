@@ -21,6 +21,7 @@ SOFTWARE.
 -->
 
 <launch>
+    <arg name="do_d435_cameras" default="true" />
     <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
     <arg name="robot_namespace" default="o" />
 
@@ -29,7 +30,7 @@ SOFTWARE.
         file="$(find o_map)/launch/map.launch">
     </include>
 
-    <!-- Launch the sensor/motor stac -->
+    <!-- Launch the sensor/motor stack -->
     <include file="$(find o_common)/launch/lidar_odom_motor.launch">
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
@@ -43,5 +44,11 @@ SOFTWARE.
     <include 
         file="$(find o_common)/launch/move_base.launch" >
         <arg name="machine" value="nxa" />
+    </include>
+
+    <!-- Bring up the D435 cameras -->
+    <include
+        if="$(arg do_d435_cameras)"
+        file="$(find o_common)/launch/d435_pair.launch">
     </include>
 </launch>
