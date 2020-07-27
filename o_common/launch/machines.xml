@@ -84,14 +84,14 @@ SOFTWARE.
     />
 
     <machine
-        address="up1d"
+        address="up1f"
         default="false"
-        env-loader="/home/wimble/remote_env.sh"
-        name="up1d"
-        user="wimble"
+        env-loader="/home/ros/remote_env.sh"
+        name="up1f"
+        user="ros"
     />
 
-    <machine
+<machine
         address="up2b"
         default="false"
         env-loader="/home/ros/remote_env.sh"
