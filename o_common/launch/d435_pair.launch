@@ -27,57 +27,13 @@ SOFTWARE.
     -->
     <include file="$(find o_common)/launch/machines.xml" />
 
-    <include file="$(find o_common)/launch/rs_camera.launch">
-        <arg name="align_depth"             value="true"/>
-        <arg name="base_frame_id"           value="d435_left_link"/>
-        <arg name="camera"                  value="d435_left" />
-        <arg name="depth_frame_id"          value="d435_left_link_depth_frame" />
-        <arg name="depth_height"            value="480" />
-        <arg name="depth_width"             value="640" />
-        <arg name="enable_accel"            value="false" />
-        <arg name="enable_color"            value="true" />
-        <arg name="enable_depth"            value="true" />
-        <arg name="enable_fisheye"          value="false" />
-        <arg name="enable_gyro"             value="false" />
-        <arg name="enable_infra1"           value="false" />
-        <arg name="enable_infra2"           value="false" />
-        <arg name="enable_pointcloud"       value="true" />
-        <arg name="enable_sync"             value="true" />
-        <!--arg name="initial_reset"         value="True"/-->
-        <arg name="linear_accel_cov"        value="1.0"/>
-        <arg name="machine"                 value="up1c" />
-        <arg name="serial_no"               value="832112074065" />
-        <arg name="tf_prefix"               value="d435_left" />
-        <arg name="unite_imu_method"        value="linear_interpolation"/>
-    </include>
+    <include file="$(find o_common)/launch/d435_left.launch" />
 
-    <include file="$(find o_common)/launch/rs_camera.launch">
-        <arg name="align_depth"             value="true"/>
-        <arg name="base_frame_id"           value="d435_right_link"/>
-        <arg name="camera"                  value="d435_right" />
-        <arg name="depth_frame_id"          value="d435_right_link_depth_frame" />
-        <arg name="depth_height"            value="480" />
-        <arg name="depth_width"             value="640" />
-        <arg name="enable_accel"            value="false" />
-        <arg name="enable_color"            value="true" />
-        <arg name="enable_depth"            value="true" />
-        <arg name="enable_fisheye"          value="false" />
-        <arg name="enable_gyro"             value="false" />
-        <arg name="enable_infra1"           value="false" />
-        <arg name="enable_infra2"           value="false" />
-        <arg name="enable_pointcloud"       value="true" />
-        <arg name="enable_sync"             value="true" />
-        <!--arg name="initial_reset"         value="True"/-->
-        <arg name="linear_accel_cov"        value="1.0"/>
-        <arg name="machine"                 value="up1f" />
-        <arg name="serial_no"               value="836612072267" />
-        <arg name="tf_prefix"               value="d435_right" />
-        <arg name="unite_imu_method"        value="linear_interpolation"/>
-    </include>
+    <include file="$(find o_common)/launch/d435_right.launch" />
 
     <!-- Launch the pointcould to laserscan nodes /-->
     <node
-        machine="up1c"
+        machine="up1a"
         name="left_pointcloud_to_laserscan"
         pkg="pointcloud_to_laserscan"
         type="pointcloud_to_laserscan_node"
@@ -94,7 +50,7 @@ SOFTWARE.
     </node>
 
     <node
-        machine="up1f"
+        machine="up1a"
         name="right_pointcloud_to_laserscan"
         pkg="pointcloud_to_laserscan"
         type="pointcloud_to_laserscan_node"
@@ -111,6 +67,7 @@ SOFTWARE.
 
     <!-- Merge the lasers -->
     <node 
+        machine="up1a"
         pkg="ira_laser_tools" 
         name="laserscan_multi_merger" 
         type="laserscan_multi_merger" 
