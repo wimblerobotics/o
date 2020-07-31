@@ -1,0 +1,52 @@
+<!--
+    Copyright (c) 2020 Michael Wimble
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<launch>
+        <arg name="doDebug" default="true" />
+        <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
+        <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
+    
+        <arg name="do_nav" default="true" />
+        <arg name="machine" default="nxa" />
+        <arg name="robot_namespace" default="o" />
+    
+        <!-- Launch the nav stack -->
+        <include 
+            if="$(arg do_nav)"
+            file="$(find o_common)/launch/nav.launch">
+            <arg name="robot_namespace" value="$(arg robot_namespace)" />
+        </include>
+    
+        <!-- Start the node -->
+        <group ns="$(arg robot_namespace)">
+            <include file="$(find o_common)/launch/machines.xml" />
+    
+            <node 
+                launch-prefix="$(arg launchPrefix)" 
+                machine="$(arg machine)"
+                name="roam_node" 
+                pkg="o_roam" 
+                type="roam_node"
+                output="screen" 
+                respawn="false">
+            </node>
+        </group>
+    </launch>

@@ -3,7 +3,7 @@
     <name>o_hardware</name>
     <version>0.0.0</version>
     <description>Wimble Robotics robot "O" motor controller package</description>
-    <maintainer email="mike@wimblerobotics.com">pi</maintainer>
+    <maintainer email="mike@wimblerobotics.com">Michael Wimble</maintainer>
     <license>MIT</license>
     <url type="website">https://github.com/wimblerobotics/o/wiki</url> -->
     <author email="mike@wimblerobotics.com">Michael Wimble</author> -->

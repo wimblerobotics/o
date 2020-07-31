@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-    <name>o_monitor</name>
+    <name>o_roam</name>
     <version>0.0.0</version>
-    <description>Wimble Robotics robot "O" monitor package</description>
+    <description>Wimble Robotics robot "O" roam package</description>
     <maintainer email="mike@wimblerobotics.com">Michael Wimble</maintainer>
     <license>MIT</license>
     <url type="website">https://github.com/wimblerobotics/o/wiki</url>
@@ -10,7 +10,6 @@
 
     <buildtool_depend>catkin</buildtool_depend>
     <depend>geometry_msgs</depend>
-    <depend>message_generation</depend>
     <depend>message_runtime</depend>
     <depend>nav_msgs</depend>
     <depend>o_msgs</depend>
