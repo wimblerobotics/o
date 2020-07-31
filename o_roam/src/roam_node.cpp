@@ -84,13 +84,14 @@ inline int mapIndex(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int i,
     return result;
 }
 
-inline double mapXtoGlobalX(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, double origin_x, int map_x) {
-    double result = origin_x + (map_x - (costmap_msg->info.width / 2)) * costmap_msg->info.resolution;
+inline double mapXtoGlobalX(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int map_x) {
+//    double result = origin_x + (map_x - (costmap_msg->info.width / 2)) * costmap_msg->info.resolution;
+    double result = costmap_msg->info.origin.position.x + (map_x - (costmap_msg->info.width / 2)) * costmap_msg->info.resolution;
     return result;
 }
 
-inline double mapYtoGlobalY(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, double origin_y, int map_y) {
-    double result = origin_y + (map_y - (costmap_msg->info.height / 2)) * costmap_msg->info.resolution;
+inline double mapYtoGlobalY(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int map_y) {
+    double result = costmap_msg->info.origin.position.x + (map_y - (costmap_msg->info.height / 2)) * costmap_msg->info.resolution;
     return result;
 }
 
@@ -149,10 +150,17 @@ void costmapCallback(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg) {
             double cost = costmap_msg->data[mapIndex(costmap_msg, i, j)];
             if(cost == 100) {
                 // convert to world position
-                double w_x = mapXtoGlobalX(costmap_msg, origin_x, i);
-                double w_y = mapYtoGlobalY(costmap_msg, origin_y, j);
-                double dist_sq = pow(w_x - pt_x, 2)+pow(w_y - pt_y, 2);
+                double w_x = mapXtoGlobalX(costmap_msg, i);
+                double w_y = mapYtoGlobalY(costmap_msg, j);
+                double dist_sq = pow(w_x - origin_x, 2) + pow(w_y - origin_y, 2);
                 if (dist_sq < min_dist) {
+                    ROS_INFO("[roam_node] i: %ld, j: %ld"
+                             ", w_x: %7.4f, w_y: %7.4f"
+                             ", origin_x: %7.4f, origin_y: %7.4f"
+                             , i, j
+                             , w_x, w_y
+                             , origin_x, origin_y
+                    );
                     min_dist = dist_sq;
                     d_x = w_x;
                     d_y = w_y;
