@@ -134,29 +134,18 @@ void costmapCallback(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg) {
                 // convert to world position
                 double d2_sq = ((i - i_midpoint) * (i - i_midpoint)) + ((j - j_midpoint) * (j - j_midpoint));
                 double d2_dist = sqrt(d2_sq * 1.0) * costmap_msg->info.resolution;
-                if (d2_dist < 1.0) {
-                    ROS_INFO("[roam_node] i: %ld, j: %ld"
-                             ", d2_sq: %7.4f, d2_dist: %7.4f"
-                             ", old min_dist: %7.4f"
-                             ", new min: %s"
-                             , i, j
-                             , d2_sq, d2_dist
-                             , min_dist
-                             , (d2_dist < min_dist) ? "TRUE" : "false"
-                    );
-                }
+                // if (d2_dist < 1.0) {
+                //     ROS_INFO("[roam_node] i: %ld, j: %ld"
+                //              ", d2_sq: %7.4f, d2_dist: %7.4f"
+                //              ", old min_dist: %7.4f"
+                //              ", new min: %s"
+                //              , i, j
+                //              , d2_sq, d2_dist
+                //              , min_dist
+                //              , (d2_dist < min_dist) ? "TRUE" : "false"
+                //     );
+                // }
                 if (d2_dist < min_dist) {
-                    for (std::size_t jx = costmap_msg->info.height; jx > 0 ; jx--) {
-                        char line[costmap_msg->info.width];
-                        for (std::size_t ix = 0; ix < costmap_msg->info.width; ix++) {
-                            double cost = costmap_msg->data[mapIndex(costmap_msg, ix, jx - 1)];
-                            line[ix] = (cost == 100) ? '*' : '.';
-                        }
-
-                        if (jx == j_midpoint) line[i_midpoint] = '@';
-                        if (jx == j) line[i] = 'X';
-                        ROS_INFO("%c %3ld: %s", (jx==j)? '>' : ' ', jx, line);
-                    }
                     min_dist = d2_dist;
                     d_x = i;
                     d_y = j;
@@ -180,6 +169,17 @@ void costmapCallback(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg) {
              , j_midpoint, i_midpoint
              , d_y - (j_midpoint * 1.0), d_x - (i_midpoint * 1.0)
     );
+    for (std::size_t jx = costmap_msg->info.height; jx > 0 ; jx--) {
+        char line[costmap_msg->info.width];
+        for (std::size_t ix = 0; ix < costmap_msg->info.width; ix++) {
+            double cost = costmap_msg->data[mapIndex(costmap_msg, ix, jx - 1)];
+            line[ix] = (cost == 100) ? '*' : '.';
+        }
+
+        if (jx == j_midpoint) line[i_midpoint] = '@';
+        if (jx == d_y) line[d_x] = 'X';
+        ROS_INFO("%c %3ld: %s", (jx == d_y)? '>' : ' ', jx, line);
+    }
 }
 
 

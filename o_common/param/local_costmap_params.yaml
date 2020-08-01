@@ -1,5 +1,5 @@
 local_costmap: 
-  # always_send_full_costmap: false
+  always_send_full_costmap: true
   global_frame: 'map'
   height: 6.0
   publish_frequency: 2.0
