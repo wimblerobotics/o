@@ -86,12 +86,12 @@ inline int mapIndex(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int i,
 
 inline double mapXtoGlobalX(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int map_x) {
 //    double result = origin_x + (map_x - (costmap_msg->info.width / 2)) * costmap_msg->info.resolution;
-    double result = costmap_msg->info.origin.position.x + (map_x - (costmap_msg->info.width / 2)) * costmap_msg->info.resolution;
+    double result = costmap_msg->info.origin.position.x + (map_x * costmap_msg->info.resolution);
     return result;
 }
 
 inline double mapYtoGlobalY(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg, int map_y) {
-    double result = costmap_msg->info.origin.position.x + (map_y - (costmap_msg->info.height / 2)) * costmap_msg->info.resolution;
+    double result = costmap_msg->info.origin.position.x + (map_y * costmap_msg->info.resolution);
     return result;
 }
 
@@ -143,24 +143,58 @@ void costmapCallback(const nav_msgs::OccupancyGrid::ConstPtr& costmap_msg) {
     double pt_x = new_pt.pose.position.x;
     double pt_y = new_pt.pose.position.y;
     double pt_th = tf::getYaw(new_pt.pose.orientation);
+    std::size_t i_midpoint = costmap_msg->info.width / 2;
+    std::size_t j_midpoint = costmap_msg->info.height / 2;
 
     // getting minimum distance
     for (std::size_t j = 0; j < costmap_msg->info.height; j++) {
-        for (std::size_t i = 0; i < costmap_msg->info.height; i++) {
+        for (std::size_t i = 0; i < costmap_msg->info.width; i++) {
             double cost = costmap_msg->data[mapIndex(costmap_msg, i, j)];
             if(cost == 100) {
                 // convert to world position
                 double w_x = mapXtoGlobalX(costmap_msg, i);
                 double w_y = mapYtoGlobalY(costmap_msg, j);
                 double dist_sq = pow(w_x - origin_x, 2) + pow(w_y - origin_y, 2);
-                if (dist_sq < min_dist) {
+                double dist = sqrt(dist_sq);
+                double d2_sq = ((i - i_midpoint) * (i - i_midpoint)) + ((j - j_midpoint) * (j - j_midpoint));
+                double d2_dist = sqrt(d2_sq * 1.0);
+                if (dist_sq < 1.0) {
                     ROS_INFO("[roam_node] i: %ld, j: %ld"
                              ", w_x: %7.4f, w_y: %7.4f"
                              ", origin_x: %7.4f, origin_y: %7.4f"
+                             ", dist_sq: %7.4f, dist: %7.4f, min_dist: %7.4f"
+                             ", new min: %s"
                              , i, j
                              , w_x, w_y
                              , origin_x, origin_y
+                             , dist_sq, dist, min_dist
+                             , (dist_sq < min_dist) ? "TRUE" : "false"
                     );
+                    ROS_INFO("[roam_node] "
+                             "w_x - origin_x: %7.4f"
+                             ", pow(w_x - origin_x, 2): %7.4f"
+                             ", w_y - origin_y: %7.4f"
+                             ", pow(w_y - origin_y, 2): %7.4f"
+                             ", d2_sq: %7.4f, d2_dist: %7.4f"
+                             , w_x - origin_x
+                             , pow(w_x - origin_x, 2)
+                             , w_y - origin_y
+                             , pow(w_y - origin_y, 2)
+                             , d2_sq, d2_dist * costmap_msg->info.resolution
+                    );
+                }
+                if (dist_sq < min_dist) {
+                    for (std::size_t jx = costmap_msg->info.height; jx > 0 ; jx--) {
+                        char line[costmap_msg->info.width];
+                        for (std::size_t ix = 0; ix < costmap_msg->info.width; ix++) {
+                            double cost = costmap_msg->data[mapIndex(costmap_msg, ix, jx - 1)];
+                            line[ix] = (cost == 100) ? '*' : '.';
+                        }
+
+                        if (jx == j_midpoint) line[i_midpoint] = '@';
+                        if (jx == j) line[i] = 'X';
+                        ROS_INFO("%c %3ld: %s", (jx==j)? '>' : ' ', jx, line);
+                    }
                     min_dist = dist_sq;
                     d_x = w_x;
                     d_y = w_y;
