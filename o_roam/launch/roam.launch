@@ -20,7 +20,7 @@
     SOFTWARE.
 -->
 <launch>
-        <arg name="doDebug" default="true" />
+        <arg name="doDebug" default="false" />
         <arg if="$(arg doDebug)" name="launchPrefix" value="xterm -e gdb --args" />
         <arg unless="$(arg doDebug)" name="launchPrefix" value="" />
     

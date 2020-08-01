@@ -2,7 +2,7 @@ local_costmap:
   always_send_full_costmap: true
   global_frame: 'map'
   height: 6.0
-  publish_frequency: 2.0
+  publish_frequency: 4.0
   resolution: 0.0508
   robot_base_frame: 'base_footprint'
   rolling_window: true
