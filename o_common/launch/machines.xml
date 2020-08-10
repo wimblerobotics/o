@@ -91,11 +91,19 @@ SOFTWARE.
         user="ros"
     />
 
-<machine
+    <machine
         address="up2b"
         default="false"
         env-loader="/home/ros/remote_env.sh"
         name="up2b"
+        user="ros"
+    />
+
+    <machine
+        address="i5a"
+        default="false"
+        env-loader="/home/ros/remote_env.sh"
+        name="i5a"
         user="ros"
     />
 </launch>
