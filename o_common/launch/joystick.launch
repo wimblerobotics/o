@@ -28,14 +28,14 @@ SOFTWARE.
       <node name="joystick_node" 
             pkg="joy" 
             type="joy_node" 
-            machine="up1a" >
+            machine="i5a" >
         <param name="joy_node/dev" value="/dev/input/js0" />
       </node>
   
       <node name="teleop_twist_joy_node" 
             pkg="teleop_twist_joy" 
             type="teleop_node" 
-            machine="up1a" >
+            machine="i5a" >
         <rosparam command="load" file="$(find o_common)/param/nimbus_joystick.yaml" />
         <remap from="$(arg robot_namespace)/cmd_vel" to="$(arg robot_namespace)/diff_drive_controller/joystick_cmd_vel" />
       </node>
