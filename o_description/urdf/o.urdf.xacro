@@ -46,7 +46,7 @@ SOFTWARE.
   <xacro:property name="wheel_offset_from_front" value="0.129" />
  
   <xacro:property name="stereo_plate_x_offset" value="0.160" />
-  <xacro:property name="stereo_plate_z_offset" value="${0.258+0.0124}" />
+  <xacro:property name="stereo_plate_z_offset" value="${0.241}" />
   <xacro:property name="d435_y_offset" value="0.077" />
  
   <xacro:property name="lidar_x_offset" value="-0.130" />
@@ -212,6 +212,6 @@ SOFTWARE.
   <joint name="base_to_t265" type="fixed">
     <parent link="base_link" />
     <child link="t265_camera_link" />
-    <origin xyz="${0.165-(t265_width/2)} 0 ${0.229+(t265_height/2)}" rpy="0 0 0" />
+    <origin xyz="${0.165} 0 ${0.275}" rpy="0 0.1388 0" />
   </joint>
 </robot>
