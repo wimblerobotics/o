@@ -23,6 +23,7 @@ SOFTWARE.
     <arg name="do_t265_odom_transform" default="false" />
     <arg name="machine"  default="nxa" />
 
+    <include file="$(find o_common)/launch/machines.xml" />
 
     <node
         if="$(arg do_t265_odom_transform)"
