@@ -19,49 +19,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
+
 <launch>
-    <!--
-    Launch the left and right D435 camera nodes.
-    Launch nodes to convert the camera point clouds to laser scan equivalents.
-    Launch a node to merge the two laser scan equivalents into a single laser scan.
-    -->
+    <arg name="machine" default="i5a" />
+    <arg name="left_or_right" />
+    <arg name="topic" />
+    <arg name="robot_namespace" default="o" />
+
     <include file="$(find o_common)/launch/machines.xml" />
-
-    <include file="$(find o_common)/launch/d435_left.launch" />
-
-    <include file="$(find o_common)/launch/d435_right.launch" />
 
     <!-- Launch the pointcould to laserscan nodes /-->
     <node
-        machine="i5a"
-        name="left_pointcloud_to_laserscan"
+        machine="$(arg machine)"
+        name="$(arg left_or_right)_pointcloud_to_laserscan"
         pkg="pointcloud_to_laserscan"
         type="pointcloud_to_laserscan_node"
     >
         <param name="concurrency_level" value="0" />
         <param name="max_height"        value="1.0" />
-        <param name="min_height"        value="-0.05" />
+        <param name="min_height"        value="0.00" />
         <param name="range_max"         value="2.0" />
-        <param name="range_min"         value="0.04" />
+        <param name="range_min"         value="0.00" />
         <param name="target_frame"      value="base_link" />
         <param name="use_inf"           value="true" />
-        <remap to="/plaser_scan_left"             from="scan" />
-        <remap to="/d435_left/depth/color/points" from="cloud_in" />
+        <remap to="/plaser_scan_$(arg left_or_right)" from="scan" />
+        <remap to="$(arg topic)" from="cloud_in" />
     </node>
 
-    <node
-        machine="i5a"
-        name="right_pointcloud_to_laserscan"
-        pkg="pointcloud_to_laserscan"
-        type="pointcloud_to_laserscan_node"
-    >
-        <param name="max_height"        value="1.0" />
-        <param name="min_height"        value="-0.05" />
-        <param name="range_max"         value="2.0" />
-        <param name="range_min"         value="0.04" />
-        <param name="target_frame"      value="base_link" />
-        <param name="use_inf"           value="true" />
-        <remap to="/plaser_scan_right"             from="scan" />
-        <remap to="/d435_right/depth/color/points" from="cloud_in" />
-    </node>
 </launch>

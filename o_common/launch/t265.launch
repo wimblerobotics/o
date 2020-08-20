@@ -61,7 +61,7 @@ SOFTWARE.
             <arg name="calib_odom_file"          value="$(find o_common)/param/calib_odometry.json" />
             <arg name="enable_accel"             value="$(arg enable_accel)"/>
             <arg name="accel_fps"                value="$(arg accel_fps)"/>
-            <arg name="enable_depth"             value="false" />>
+            <arg name="enable_depth"             value="false" />
             <arg name="enable_fisheye1"          value="$(arg enable_fisheye1)"/>
             <arg name="enable_fisheye2"          value="$(arg enable_fisheye2)"/>
             <arg name="enable_gyro"              value="$(arg enable_gyro)"/>
