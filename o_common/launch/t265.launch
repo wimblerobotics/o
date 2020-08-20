@@ -30,7 +30,7 @@ SOFTWARE.
         name="t265_base_link_to_t265_pose_frame" 
         pkg="tf" 
         type="static_transform_publisher" 
-        args="-0.135 0 -0.235 0 0.0 0 t265_pose_frame base_link  200" />
+        args="-0.200 0 -0.250 0 0.45 0 t265_pose_frame base_link  200" />
 
     
     

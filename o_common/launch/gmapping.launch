@@ -54,6 +54,20 @@ SOFTWARE.
         file="$(find o_common)/launch/d435_pair.launch">
     </include>
 
+    <!-- Merge the lasers -->
+    <node 
+        pkg="ira_laser_tools" 
+        name="laserscan_multi_merger" 
+        type="laserscan_multi_merger" 
+        output="screen">
+        <param name="angle_increment" value="0.017453292519943" />
+		<param name="destination_frame" value="base_link"/>
+		<param name="cloud_destination_topic" value="/merged_cloud"/>
+		<param name="scan_destination_topic" value="/scan_multi"/>
+        <param name="laserscan_topics" value ="/plaser_scan_left /plaser_scan_right" />
+        <!--param name="laserscan_topics" value ="/plaser_scan_left /plaser_scan_right /o/scan" /-->
+    </node>
+    
     <!-- Load gmapping -->
     <node name="gmapping_node" pkg="gmapping" type="slam_gmapping" output="screen">
         <param name="angularUpdate" value="0.1" />
@@ -68,7 +82,7 @@ SOFTWARE.
         <param name="xmin" value="-50.0" />
         <param name="ymax" value="50.0" />
         <param name="ymin" value="-50.0" />
-        <remap from="scan" to="/o/scan" />
+        <remap from="scan" to="/scan_multi" />
         <!-- remap from="map" to="/nadie/map" / -->
     </node>
 

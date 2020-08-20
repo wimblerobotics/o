@@ -16,6 +16,7 @@
     <depend>dynamic_reconfigure</depend>
     <depend>geometry_msgs</depend>
     <depend>hardware_interface</depend>
+    <depend>ira_laser_tools</depend>
     <depend>joint_limits_interface</depend>
     <depend>message_generation</depend>
     <depend>message_runtime</depend>

@@ -212,6 +212,6 @@ SOFTWARE.
   <joint name="base_to_t265" type="fixed">
     <parent link="base_link" />
     <child link="t265_camera_link" />
-    <origin xyz="${0.165} 0 ${-0.275}" rpy="0 0.1388 0" />
+    <origin xyz="${0.165} 0 ${0.275}" rpy="0 -0.1388 0" />
   </joint>
 </robot>
