@@ -22,8 +22,8 @@ SOFTWARE.
 
 <launch>
     <arg name="do_d435_cameras" default="true" />
-    <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
     <arg name="laser_merge_node_start_delay" default="1.0" />  
+    <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
     <arg name="robot_namespace" default="o" />
 
     <include file="$(find o_common)/launch/machines.xml" />
@@ -69,7 +69,6 @@ SOFTWARE.
 		<param name="cloud_destination_topic" value="/merged_cloud"/>
 		<param name="scan_destination_topic" value="/scan_multi"/>
         <param name="laserscan_topics" value ="/o/scan /plaser_scan_left /plaser_scan_right" />
-        <!--param name="laserscan_topics" value ="/plaser_scan_left /plaser_scan_right /o/scan" /-->
     </node>
     
     <!-- Load gmapping -->

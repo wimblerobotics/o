@@ -27,7 +27,7 @@ SOFTWARE.
     <arg name="initial_pose_a"  default="1.5707963268" />
     <arg name="machine"         default="nxa" />
     <arg name="odom_frame_id"   default="t265_odom_frame" />
-    <arg name="scan_topic"      default="/o/scan" />
+    <arg name="scan_topic"      default="/scan_multi" />
     <arg name="use_map_topic"   default="true"/>
   
     <include file="$(find o_common)/launch/machines.xml" />

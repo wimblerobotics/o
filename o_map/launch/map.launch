@@ -21,7 +21,8 @@ SOFTWARE.
 -->
 
 <launch>
-    <arg name="map_file" default="$(find o_map)/maps/Snowberry.yaml" />
+    <!--arg name="map_file" default="$(find o_map)/maps/Snowberry.yaml" /-->
+    <arg name="map_file" default="$(find o_map)/maps/2020_08_22a.yaml" />
 
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 

@@ -22,6 +22,7 @@ SOFTWARE.
 
 <launch>
     <arg name="do_d435_cameras" default="true" />
+    <arg name="laser_merge_node_start_delay" default="1.0" />  
     <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
     <arg name="robot_namespace" default="o" />
 
@@ -51,4 +52,21 @@ SOFTWARE.
         if="$(arg do_d435_cameras)"
         file="$(find o_common)/launch/d435_pair.launch">
     </include>
+
+    <!-- Merge the lasers -->
+    <node 
+        launch-prefix="bash -c 'sleep $(arg laser_merge_node_start_delay); $0 $@'"
+        name="laserscan_multi_merger" 
+        pkg="ira_laser_tools" 
+        type="laserscan_multi_merger" 
+        output="screen">
+        <param name="angle_min" value="-3.141592653589793" />
+        <param name="angle_max" value="3.141592653589793" />
+        <param name="angle_increment" value="0.017453292519943" />
+		<param name="destination_frame" value="base_link"/>
+		<param name="cloud_destination_topic" value="/merged_cloud"/>
+		<param name="scan_destination_topic" value="/scan_multi"/>
+        <param name="laserscan_topics" value ="/o/scan /plaser_scan_left /plaser_scan_right" />
+    </node>
+    
 </launch>

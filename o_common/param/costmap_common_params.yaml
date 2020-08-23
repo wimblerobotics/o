@@ -18,7 +18,7 @@ obstacle_layer:
   enabled: true                         # true/false
   footprint_clearing_enabled: true     # true/false
   inf_is_valid: true #false
-  laser_scan_sensor: { clearing: true, data_type: LaserScan, expected_update_rate: 2.0, marking: true, sensor_frame: 'scan', topic: '/o/scan' }
+  laser_scan_sensor: { clearing: true, data_type: LaserScan, expected_update_rate: 2.0, marking: true, sensor_frame: 'scan', topic: '/scan_multi' }
   max_obstacle_height: 2.0              # 0.0 .. 50
   min_obstacle_height: 0.0
   observation_sources: laser_scan_sensor

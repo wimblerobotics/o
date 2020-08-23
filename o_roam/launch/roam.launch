@@ -47,6 +47,7 @@
                 type="roam_node"
                 output="screen" 
                 respawn="false">
+                <remap from="/o/scan" to="/scan_multi" />>
             </node>
         </group>
     </launch>

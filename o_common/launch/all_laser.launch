@@ -21,8 +21,8 @@ SOFTWARE.
 -->
 
 <launch>
-    <arg name="machine" default="i5a" />>
     <arg name="laser_merge_node_start_delay" default="1.0" />  
+    <arg name="machine" default="i5a" />>
     <arg name="robot_namespace" default="o" />
 
     <include file="$(find o_common)/launch/machines.xml" />
