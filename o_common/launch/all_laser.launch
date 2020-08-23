@@ -21,39 +21,37 @@ SOFTWARE.
 -->
 
 <launch>
-    <arg name="do_d435_cameras" default="true" />
-    <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
+    <arg name="machine" default="i5a" />>
     <arg name="laser_merge_node_start_delay" default="1.0" />  
     <arg name="robot_namespace" default="o" />
 
     <include file="$(find o_common)/launch/machines.xml" />
 
-    <!-- Load the map -->
-    <include
-        file="$(find o_map)/launch/map.launch">
-    </include>
-
-    <!-- Launch the sensor/motor stack -->
-    <include file="$(find o_common)/launch/lidar_odom_motor.launch">
+    <!-- Launch the URDF description -->
+    <include 
+        file="$(find o_description)/launch/description.launch" >
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
 
-    <!-- Launch AMCL -->
-    <!--include
-        file="$(find o_common)/launch/amcl.launch">
-    </include-->
-
-    <!-- Bring up move_base -->
-    <include 
-        file="$(find o_common)/launch/move_base.launch" >
-        <arg name="machine" value="nxa" />
+    <!-- Launch the LIDAR -->
+    <include file="$(find o_common)/launch/neato_lidar.launch" >
+        <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
 
-    <!-- Bring up the D435 cameras -->
-    <include
-        if="$(arg do_d435_cameras)"
-        file="$(find o_common)/launch/d435_pair.launch">
-    </include>
+    <!-- Bring up the D435 cameras and the pointcloud-to-lidar transforms -->
+    <include file="$(find o_common)/launch/d435_pair.launch" />
+
+    <group ns="$(arg robot_namespace)">
+        <!-- Starting robot state publish which will publish tf -->
+        <node 
+              machine="$(arg machine)" 
+              name="robot_state_publisher" 
+              pkg="robot_state_publisher" 
+              type="robot_state_publisher">
+            <remap from="joint_states" to="/$(arg robot_namespace)/joint_states" />
+        </node>
+    </group>
+
 
     <!-- Merge the lasers -->
     <node 
@@ -69,25 +67,6 @@ SOFTWARE.
 		<param name="cloud_destination_topic" value="/merged_cloud"/>
 		<param name="scan_destination_topic" value="/scan_multi"/>
         <param name="laserscan_topics" value ="/o/scan /plaser_scan_left /plaser_scan_right" />
-        <!--param name="laserscan_topics" value ="/plaser_scan_left /plaser_scan_right /o/scan" /-->
-    </node>
-    
-    <!-- Load gmapping -->
-    <node name="gmapping_node" pkg="gmapping" type="slam_gmapping" output="screen">
-        <param name="angularUpdate" value="0.1" />
-        <param name="delta" value="0.0254" />
-        <param name="linearUpdate" value="0.1" />
-        <param name="map_update_interval" value="1.0" />
-        <param name="maxRange" value="4.8" />
-        <param name="maxUrange" value="6.0" />
-        <param name="odom_frame" value="t265_odom_frame" />
-        <param name="temporalUpdate" value="1.0" />
-        <param name="xmax" value="50.0" />
-        <param name="xmin" value="-50.0" />
-        <param name="ymax" value="50.0" />
-        <param name="ymin" value="-50.0" />
-        <remap from="scan" to="/scan_multi" />
-        <!-- remap from="map" to="/nadie/map" / -->
     </node>
 
 </launch>

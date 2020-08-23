@@ -32,9 +32,9 @@
     
     <!-- Load the URDF -->
     <include 
-    if="$(arg do_load_urdf)"
-    file="$(find o_description)/launch/description.launch" >
-    <arg name="robot_namespace" value="$(arg robot_namespace)" />
+        if="$(arg do_load_urdf)"
+        file="$(find o_description)/launch/description.launch" >
+        <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
       
         <rosparam command="load" file="$(find o_hardware)/param/motor_controller.yaml" />

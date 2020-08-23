@@ -30,7 +30,7 @@ SOFTWARE.
 
     <include file="$(find o_common)/launch/machines.xml" />
 
-  <!-- Launch the T265 tracking camera -->
+   <!-- Launch the T265 tracking camera -->
     <include if="$(arg do_t265)" 
              file="$(find o_common)/launch/t265.launch">
         <arg name="do_t265_odom_transform" value="$(arg do_t265_odom_transform)" />
