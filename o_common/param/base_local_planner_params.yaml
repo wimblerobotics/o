@@ -12,7 +12,7 @@ DWAPlannerROS:
   max_vel_trans: 0.5              # The absolute value of the maximum translational velocity for the robot in m/s
   max_vel_x: 0.55                 # The maximum x velocity for the robot in m/s.
   max_vel_y: 0.0                  # The maximum y velocity for the robot in m/s
-  min_vel_theta: 0.04             # The absolute value of the minimum rotational velocity for the robot in rad/s
+  min_vel_theta: 0.1              # The absolute value of the minimum rotational velocity for the robot in rad/s
   min_vel_trans: 0.1              # The absolute value of the minimum translational velocity for the robot in m/s
   min_vel_x: 0.1                  # The minimum x velocity for the robot in m/s, negative for backwards motion.
   min_vel_y: 0.0                  # The minimum y velocity for the robot in m/s

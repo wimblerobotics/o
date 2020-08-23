@@ -12,14 +12,28 @@ global_costmap:
 
   plugins:
     - { name: 'inflation_layer', type: 'costmap_2d::InflationLayer' }
-  #  - { name: 'static_map', type: 'costmap_2d::StaticLayer' }
+    - { name: 'static_map', type: 'costmap_2d::StaticLayer' }
   #  - { name: 'obstacle_layer', type: 'costmap_2d::ObstacleLayer' }
 
   inflation_layer:
     enabled: true               # true/false
     cost_scaling_factor:  5.0
 
-  # obstacle_layer:
+static_map:
+  enabled: true                 # true/false
+  cost_scaling_factor: 2.58
+  first_map_only: false         # Only subscribe to the first message on the map topic, ignoring all subsequent message. (false)
+  lethal_cost_threshold: 100    # The threshold value at which to consider a cost lethal when reading in a map from the map server. (100)
+  map_topic: /map               # The topic that the costmap subscribes to for the static map. (map)
+  subscribe_to_updates: true    # In addition to map_topic, also subscribe to map_topic + "_updates". (false)
+  track_unknown_space: true     # If true, unknown values in the map messages are translated directly to the layer. (true)
+  trinary_costmap: true         # If true, translates all map message values to NO_INFORMATION/FREE_SPACE/LETHAL_OBSTACLE (three values). 
+                                # If false, a full spectrum of intermediate values is possible.
+
+  unknown_cost_value: 253       # The value for which a cost should be considered unknown when reading in a map from the map server. (-1)
+  use_maximum: false            # Only matters if the static layer is not the bottom layer. If true, only the maximum value will be written to the master costmap.
+
+# obstacle_layer:
   #   combination_method: 1   # 0 - overwrite, 1 - Maximum
   #   enabled: true
   
