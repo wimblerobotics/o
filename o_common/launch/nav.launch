@@ -27,9 +27,9 @@ SOFTWARE.
     <arg name="robot_namespace" default="o" />
 
     <!-- Load the map -->
-    <include
+    <!--include
         file="$(find o_map)/launch/map.launch">
-    </include>
+    </include-->
 
     <!-- Launch the sensor/motor stack -->
     <include file="$(find o_common)/launch/lidar_odom_motor.launch">
@@ -37,14 +37,14 @@ SOFTWARE.
     </include>
 
     <!-- Launch AMCL -->
-    <include
+    <!--include
         file="$(find o_common)/launch/amcl.launch">
-    </include>
+    </include-->
 
     <!-- Bring up move_base -->
     <include 
         file="$(find o_common)/launch/move_base.launch" >
-        <arg name="machine" value="nxa" />
+        <arg name="machine" value="i5a" />
     </include>
 
     <!-- Bring up the D435 cameras -->
@@ -68,5 +68,10 @@ SOFTWARE.
 		<param name="scan_destination_topic" value="/scan_multi"/>
         <param name="laserscan_topics" value ="/o/scan /plaser_scan_left /plaser_scan_right" />
     </node>
+
+    <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
+            <rosparam command="load" file="$(find o_common)/param/mapper_params_online_sync.yaml" />
+          </node>
+        
     
 </launch>

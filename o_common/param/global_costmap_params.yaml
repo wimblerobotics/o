@@ -13,7 +13,7 @@ global_costmap:
   plugins:
     - { name: 'inflation_layer', type: 'costmap_2d::InflationLayer' }
     - { name: 'static_map', type: 'costmap_2d::StaticLayer' }
-  #  - { name: 'obstacle_layer', type: 'costmap_2d::ObstacleLayer' }
+    - { name: 'obstacle_layer', type: 'costmap_2d::ObstacleLayer' }
 
   inflation_layer:
     enabled: true               # true/false
