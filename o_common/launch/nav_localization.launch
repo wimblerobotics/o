@@ -1,0 +1,86 @@
+<!--
+Copyright (c) 2020 Michael Wimble
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<launch>
+    <arg name="do_d435_cameras" default="true" />
+    <arg name="laser_merge_node_start_delay" default="1.0" />  
+    <arg name="load_map_node_start_delay" default="4.0" />  
+    <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
+    <arg name="robot_namespace" default="o" />
+
+    <!-- Load the map -->
+    <!--include
+        file="$(find o_map)/launch/map.launch">
+    </include-->
+
+    <!-- Launch the sensor/motor stack -->
+    <include file="$(find o_common)/launch/lidar_odom_motor.launch">
+        <arg name="robot_namespace" value="$(arg robot_namespace)" />
+    </include>
+
+    <!-- Launch AMCL -->
+    <!--include
+        file="$(find o_common)/launch/amcl.launch">
+    </include-->
+
+    <!-- Bring up move_base -->
+    <include 
+        file="$(find o_common)/launch/move_base.launch" >
+        <arg name="machine" value="i5a" />
+    </include>
+
+    <!-- Bring up the D435 cameras -->
+    <include
+        if="$(arg do_d435_cameras)"
+        file="$(find o_common)/launch/d435_pair.launch">
+    </include>
+
+    <!-- Merge the lasers -->
+    <node 
+        launch-prefix="bash -c 'sleep $(arg laser_merge_node_start_delay); $0 $@'"
+        name="laserscan_multi_merger" 
+        pkg="ira_laser_tools" 
+        type="laserscan_multi_merger" 
+        output="screen">
+        <param name="angle_min" value="-3.141592653589793" />
+        <param name="angle_max" value="3.141592653589793" />
+        <param name="angle_increment" value="0.017453292519943" />
+		<param name="destination_frame" value="base_link"/>
+		<param name="cloud_destination_topic" value="/merged_cloud"/>
+		<param name="scan_destination_topic" value="/scan_multi"/>
+        <param name="laserscan_topics" value ="/o/scan /plaser_scan_left /plaser_scan_right" />
+    </node>
+
+    <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
+            <rosparam command="load" file="$(find o_common)/param/localization_mapper_params_online_sync.yaml" />
+    </node>
+
+    <!--node 
+        launch-prefix="bash -c 'sleep $(arg load_map_node_start_delay); $0 $@'"
+        name="load_map"
+        output="screen"
+        pkg="rosservice"
+        type="rosservice"
+        args="call /slam_toolbox/deserialize_map '{filename: /home/ros/.ros/slam_map_2020_08_30_2220.posegraph, match_type: 3, initial_pose: { x: 0.0, y: 0.0, theta: 0.0 }}'"
+    /-->
+      
+</launch>

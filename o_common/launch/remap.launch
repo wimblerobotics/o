@@ -21,6 +21,7 @@ SOFTWARE.
 -->
 
 <launch>
+    <arg name="robot_namespace" default="o" />
 
     <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
             <rosparam command="load" file="$(find o_common)/param/mapper_params_online_sync.yaml" />
