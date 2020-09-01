@@ -1,23 +1,23 @@
 global_costmap:
   # always_send_full_costmap: false
   global_frame: 'map'
-  height: 6.0
+  height: 20.0
   publish_frequency: 2.0
   robot_base_frame: 'base_footprint'
   resolution: 0.0508
   rolling_window: true #####
   transform_tolerance: 0.6 #####
   update_frequency: 5.0
-  width: 6.0
+  width: 20.0
 
   plugins:
+    - { name: 'obstacle_layer', type: 'costmap_2d::ObstacleLayer' }
     - { name: 'inflation_layer', type: 'costmap_2d::InflationLayer' }
     - { name: 'static_map', type: 'costmap_2d::StaticLayer' }
-    - { name: 'obstacle_layer', type: 'costmap_2d::ObstacleLayer' }
 
-  inflation_layer:
-    enabled: true               # true/false
-    cost_scaling_factor:  5.0
+  # inflation_layer:
+  #   enabled: true               # true/false
+  #   cost_scaling_factor:  5.0
 
 static_map:
   enabled: true                 # true/false
@@ -32,38 +32,3 @@ static_map:
 
   unknown_cost_value: 253       # The value for which a cost should be considered unknown when reading in a map from the map server. (-1)
   use_maximum: false            # Only matters if the static layer is not the bottom layer. If true, only the maximum value will be written to the master costmap.
-
-# obstacle_layer:
-  #   combination_method: 1   # 0 - overwrite, 1 - Maximum
-  #   enabled: true
-  
-#####base_global_planner: "global_planner/GlobalPlanner"
-base_global_planner: "carrot_planner/CarrotPlanner"
-# GlobalPlanner:                                  # Also see: http://wiki.ros.org/global_planner
-#   allow_unknown: true                           # Allow planner to plan through unknown space. (true)
-#                                                 # Needs to have track_unknown_space: true in the obstacle / voxel layer (in costmap_commons_param) to work
-
-#   cost_factor: 0.55                             # Factor to multiply each cost from costmap by (dynamic reconfigure). (3.0)
-#   default_tolerance: 0.0                        # If goal in obstacle, plan to the closest point in radius default_tolerance, (0.0)
-#   lethal_cost: 253                              # Lethal Cost (dynamic reconfigure). (253)
-#   neutral_cost: 66                              # Neutral Cost (dynamic reconfigure). (50)
-#   old_navfn _behavior: false                    # Exactly mirror behavior of navfn, use defaults for other boolean parameters. (false)
-#   orientation_mode: 0                           # How to set the orientation of each point 
-#                                                 # (None=0, Forward=1, Interpolate=2, ForwardThenInterpolate=3, Backward=4, 
-#                                                 # Leftward=5, Rightward=6) (dynamic reconfigure), (0)
-
-#   orientation_window_size: 1                    # What window to use to determine the orientation based on the position derivative specified 
-#                                                 # by the orientation mode (dynamic reconfigure). (1)
-
-#   publish_potential: true                       # Publish Potential Costmap (this is not like the navfn pointcloud2 potential). (true)
-#   use_dijkstra: true                            # Use dijkstra's algorithm. Otherwise, A*. (true)
-#   use_grid_path: false                          # Create a path that follows the grid boundaries. Otherwise, use a gradient descent method. (false)
-#   use_quadratic: true                           # Use the quadratic approximation of the potential. Otherwise, use a simpler calculation. (true)
-#   visualize_potential: false                    # Specifies whether or not to visualize the potential area computed via a PointCloud2. (false)
-  
-  # # Not sure if these are used
-  # planner_window_x: 0.0                         # default 0.0
-  # planner_window_y: 0.0                         # default 0.0
-  # publish_scale: 100                            # Scale by which the published potential gets multiplied, default 100
-  # planner_costmap_publish_frequency: 0.0        # default 0.0
-  

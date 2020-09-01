@@ -18,7 +18,7 @@ mode: localization
 # will use pose
 map_file_name: /home/ros/.ros/slam_map_2020_08_30_2220
 #map_file_name: "/home/ros/.ros/slam_toolbox_map1.yaml"
-#map_start_pose: [0, 0, 0]
+map_start_pose: [0, 0, 0]
 #map_start_at_dock: true
 
 debug_logging: false

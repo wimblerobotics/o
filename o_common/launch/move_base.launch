@@ -35,14 +35,14 @@
         <rosparam file="$(find o_common)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
         <rosparam file="$(find o_common)/param/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find o_common)/param/global_costmap_params.yaml" command="load" />
-        <rosparam file="$(find o_common)/param/base_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find o_common)/param/teb_local_planner_params.yaml" command="load" />
 
         <param name="base_global_planner" value="global_planner/GlobalPlanner" />
-        <param name="planner_frequency" value="1.0" />
+        <param name="planner_frequency" value="2.0" />
         <param name="planner_patience" value="5.0" />
 
         <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-        <param name="controller_frequency" value="5.0" />
+        <param name="controller_frequency" value="10.0" />
         <param name="controller_patience" value="15.0" />
 
         <remap from="cmd_vel" to="/o/diff_drive_controller/move_base_cmd_vel" />
