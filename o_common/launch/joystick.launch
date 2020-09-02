@@ -37,7 +37,7 @@ SOFTWARE.
             type="teleop_node" 
             machine="i5a" >
         <rosparam command="load" file="$(find o_common)/param/nimbus_joystick.yaml" />
-        <remap from="$(arg robot_namespace)/cmd_vel" to="$(arg robot_namespace)/diff_drive_controller/joystick_cmd_vel" />
+        <remap from="cmd_vel" to="diff_drive_controller/joystick_cmd_vel" />
       </node>
     </group>
   </launch>

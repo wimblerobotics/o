@@ -84,6 +84,7 @@
               type="nodelet" 
               args="manager" />
 
+        <!-- Load the cmd_vel multiplexer -->
         <node if="$(arg do_cmd_vel_mux)" 
               machine="$(arg machine)" 
               name="twist_mux" 
