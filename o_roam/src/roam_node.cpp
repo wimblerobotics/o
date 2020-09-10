@@ -11,6 +11,7 @@
 
 #include <nav_msgs/OccupancyGrid.h>
 
+// TODO: Take distance arg and return vector of (x,y,angle) tuples of points within that distance in costmap
 
 typedef enum LIDAR_SOURCE {
 	NEATO,

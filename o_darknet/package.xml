@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>o_darknet</name>
+    <version>0.0.0</version>
+    <description>Wimble Robotics robot "O" darknet package</description>
+    <maintainer email="mike@wimblerobotics.com">Michael Wimble</maintainer>
+    <license>MIT</license>
+    <url type="website">https://github.com/wimblerobotics/o/wiki</url> -->
+    <author email="mike@wimblerobotics.com">Michael Wimble</author> -->
+
+    <!-- Use test_depend for packages you need only for testing: -->
+    <!--   <test_depend>gtest</test_depend> -->
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>message_generation</depend>
+    <depend>message_runtime</depend>
+    <depend>rosconsole</depend>
+    <depend>roscpp</depend>
+    <depend>rospy</depend>
+    <depend>std_msgs</depend>
+
+    <test_depend>rostest</test_depend>
+
+    <!-- The export tag contains other, unspecified, tags -->
+    <export>
+    <!-- Other tools can request additional information be placed here -->
+    </export>
+</package>
