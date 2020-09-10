@@ -30,12 +30,17 @@ locks:
 
 topics:
 -
+  name    : keyboard
+  topic   : "/o/keyboard_cmd_vel"
+  timeout : 0.5
+  priority: 30
+-
   name    : navigation
   topic   : "/o/diff_drive_controller/move_base_cmd_vel"
   timeout : 0.5
   priority: 10
 -
   name    : joystick
-  topic   : "/o2020/diff_drive_controller/joystick_cmd_vel"
+  topic   : "/o/diff_drive_controller/joystick_cmd_vel"
   timeout : 0.5
-  priority: 100
+  priority: 20
