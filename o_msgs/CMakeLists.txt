@@ -10,8 +10,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_message_files(
   FILES
-  RoboClawStatus.msg
   Monitor.msg
+  ObjectFound.msg
+  ObjectFoundList.msg
+  RoboClawStatus.msg
 )
 
 add_service_files(

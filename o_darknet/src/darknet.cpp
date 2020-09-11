@@ -1,20 +1,24 @@
+#include <atomic>
+#include <cmath>
+#include <fstream>
+#include <future>
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <vector>
-#include <queue>
-#include <fstream>
-#include <thread>
-#include <future>
-#include <atomic>
 #include <mutex>         // std::mutex, std::unique_lock
-#include <cmath>
+#include <queue>
+#include <string>
+#include <thread>
+#include <vector>
+
+#include "ros/ros.h"
+#include <o_msgs/ObjectFound.h>
+#include <o_msgs/ObjectFoundList.h>
 
 
 // It makes sense only for video-Camera (not for video-File)
 // To use - uncomment the following line. Optical-flow is supported only by OpenCV 3.x - 4.x
 //#define TRACK_OPTFLOW
-//#define GPU
+#define GPU
 
 // To use 3D-stereo camera ZED - uncomment the following line. ZED_SDK should be installed.
 //#define ZED_STEREO
@@ -217,6 +221,24 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std
 #endif    // OPENCV
 
 
+void publish_objects_found(ros::Publisher objectfound_publisher, std::vector<bbox_t> const result_vec, std::vector<std::string> const obj_names, int frame_id = -1) {
+    o_msgs::ObjectFoundList object_found_list;
+    for (auto &i : result_vec) {
+        o_msgs::ObjectFound object_found_message;
+        object_found_message.object_id = i.obj_id;
+        object_found_message.x = i.x;
+        object_found_message.y = i.y;
+        object_found_message.width = i.w;
+        object_found_message.height = i.h;
+        object_found_message.probability = i.prob;
+        object_found_message.object_name = obj_names.size() > i.obj_id ? obj_names[i.obj_id] : "<BADNAME>";
+        object_found_list.objects_found.push_back(object_found_message);
+    }
+
+    objectfound_publisher.publish(object_found_list);
+}
+
+
 void show_console_result(std::vector<bbox_t> const result_vec, std::vector<std::string> const obj_names, int frame_id = -1) {
     if (frame_id >= 0) std::cout << " Frame: " << frame_id << std::endl;
     for (auto &i : result_vec) {
@@ -271,6 +293,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ros::init(argc, argv, "darknet_node");
+	ros::NodeHandle nh;
+
     std::string  names_file = "data/coco.names";
     std::string  cfg_file = "cfg/yolov3.cfg";
     std::string  weights_file = "yolov3.weights";
@@ -285,6 +310,8 @@ int main(int argc, char *argv[])
     else if (argc > 1) filename = argv[1];
 
     float const thresh = (argc > 5) ? std::stof(argv[5]) : 0.2;
+
+    ros::Publisher objectfound_publisher = nh.advertise<o_msgs::ObjectFoundList>("object_found", 1);
 
     Detector detector(cfg_file, weights_file);
 
@@ -659,6 +686,7 @@ int main(int argc, char *argv[])
                         std::cout << line << std::endl;
                         cv::Mat mat_img = cv::imread(line);
                         std::vector<bbox_t> result_vec = detector.detect(mat_img);
+                        publish_objects_found(objectfound_publisher, result_vec, obj_names);
                         show_console_result(result_vec, obj_names);
                         //draw_boxes(mat_img, result_vec, obj_names);
                         //cv::imwrite("res_" + line, mat_img);
@@ -679,6 +707,7 @@ int main(int argc, char *argv[])
                 //result_vec = detector.tracking_id(result_vec);    // comment it - if track_id is not required
                 draw_boxes(mat_img, result_vec, obj_names);
                 cv::imshow("window name", mat_img);
+                publish_objects_found(objectfound_publisher, result_vec, obj_names);
                 show_console_result(result_vec, obj_names);
                 cv::waitKey(0);
             }
@@ -688,6 +717,7 @@ int main(int argc, char *argv[])
             auto img = detector.load_image(filename);
             std::vector<bbox_t> result_vec = detector.detect(img);
             detector.free_image(img);
+            publish_objects_found(objectfound_publisher, result_vec, obj_names);
             show_console_result(result_vec, obj_names);
 #endif  // OPENCV
         }

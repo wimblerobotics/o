@@ -25,6 +25,7 @@ set_property(
 )
 
 find_package(catkin REQUIRED COMPONENTS
+  o_msgs
   rosconsole
   roscpp
   rospy
@@ -38,6 +39,7 @@ catkin_package(
 #  INCLUDE_DIRS include
   CATKIN_DEPENDS
   message_runtime
+  o_msgs
   rosconsole 
   roscpp 
   rospy 
