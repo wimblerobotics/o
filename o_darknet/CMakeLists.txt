@@ -24,8 +24,12 @@ set_property(
         "${DARKNET_PATH}/libdarknet.so"
 )
 
+find_package(OpenCV REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
   o_msgs
+  image_transport
   rosconsole
   roscpp
   rospy
@@ -33,11 +37,11 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
-#find_package(DARKNET REQUIRED)
 
 catkin_package(
 #  INCLUDE_DIRS include
   CATKIN_DEPENDS
+  cv_bridge
   message_runtime
   o_msgs
   rosconsole 
@@ -49,7 +53,8 @@ catkin_package(
 
 include_directories(
 #  include
-   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
 )
 
 add_executable (
@@ -65,7 +70,7 @@ add_dependencies(
 target_link_libraries(
   darknet_node
   ${catkin_LIBRARIES} 
-  boost_system boost_thread
+  ${Boost_LIBRARIES}
   ${CUDA_LIBRARIES}
 #  /usr/lib/aarch64-linux-gnu/libcuda.so
 #  /usr/lib/libdarknet.so
