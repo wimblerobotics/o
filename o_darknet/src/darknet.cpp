@@ -18,33 +18,41 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
+//####define OPENCV
+
 #include "yolo_v2_class.hpp"    // imported functions from DLL
 
-#ifdef OPENCV
-
 #include <opencv2/opencv.hpp>            // C++
-#include <opencv2/core/version.hpp>
-#ifndef CV_VERSION_EPOCH     // OpenCV 3.x and 4.x
-#include <opencv2/videoio/videoio.hpp>
-#define OPENCV_VERSION CVAUX_STR(CV_VERSION_MAJOR)"" CVAUX_STR(CV_VERSION_MINOR)"" CVAUX_STR(CV_VERSION_REVISION)
-#ifndef USE_CMAKE_LIBS
-#pragma comment(lib, "opencv_world" OPENCV_VERSION ".lib")
-#endif    // USE_CMAKE_LIBS
-#else     // OpenCV 2.x
-#define OPENCV_VERSION CVAUX_STR(CV_VERSION_EPOCH)"" CVAUX_STR(CV_VERSION_MAJOR)"" CVAUX_STR(CV_VERSION_MINOR)
-#ifndef USE_CMAKE_LIBS
-#pragma comment(lib, "opencv_core" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_imgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_highgui" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_video" OPENCV_VERSION ".lib")
-#endif    // USE_CMAKE_LIBS
-#endif    // CV_VERSION_EPOCH
+// #include <opencv2/core/version.hpp>
+// #ifndef CV_VERSION_EPOCH     // OpenCV 3.x and 4.x
+// #include <opencv2/videoio/videoio.hpp>
+// #define OPENCV_VERSION CVAUX_STR(CV_VERSION_MAJOR)"" CVAUX_STR(CV_VERSION_MINOR)"" CVAUX_STR(CV_VERSION_REVISION)
+// #ifndef USE_CMAKE_LIBS
+// #pragma comment(lib, "opencv_world" OPENCV_VERSION ".lib")
+// #endif    // USE_CMAKE_LIBS
+// #else     // OpenCV 2.x
+// #define OPENCV_VERSION CVAUX_STR(CV_VERSION_EPOCH)"" CVAUX_STR(CV_VERSION_MAJOR)"" CVAUX_STR(CV_VERSION_MINOR)
+// #ifndef USE_CMAKE_LIBS
+// #pragma comment(lib, "opencv_core" OPENCV_VERSION ".lib")
+// #pragma comment(lib, "opencv_imgproc" OPENCV_VERSION ".lib")
+// #pragma comment(lib, "opencv_highgui" OPENCV_VERSION ".lib")
+// #pragma comment(lib, "opencv_video" OPENCV_VERSION ".lib")
+// #endif    // USE_CMAKE_LIBS
+// #endif    // CV_VERSION_EPOCH
+
+cv::Scalar obj_id_to_color(int obj_id) {
+    int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{ 1,1,0 },{ 1,0,0 } };
+    int const offset = obj_id * 123457 % 6;
+    int const color_scale = 150 + (obj_id * 123457) % 100;
+    cv::Scalar color(colors[offset][0], colors[offset][1], colors[offset][2]);
+    color *= color_scale;
+    return color;
+}
 
 
 void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std::string> obj_names,
     int current_det_fps = -1, int current_cap_fps = -1)
 {
-    int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{ 1,1,0 },{ 1,0,0 } };
 
     for (auto &i : result_vec) {
         cv::Scalar color = obj_id_to_color(i.obj_id);
@@ -68,7 +76,7 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std
 
             cv::rectangle(mat_img, cv::Point2f(std::max((int)i.x - 1, 0), std::max((int)i.y - 35, 0)),
                 cv::Point2f(std::min((int)i.x + max_width, mat_img.cols - 1), std::min((int)i.y, mat_img.rows - 1)),
-                color, CV_FILLED, 8, 0);
+                color, cv::FILLED, 8, 0);
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(0, 0, 0), 2);
             if(!coords_3d.empty()) putText(mat_img, coords_3d, cv::Point2f(i.x, i.y-1), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0, 0, 0), 1);
         }
@@ -78,7 +86,6 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std
         putText(mat_img, fps_str, cv::Point2f(10, 20), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(50, 255, 0), 2);
     }
 }
-#endif    // OPENCV
 
 
 std::mutex img_mutex;
@@ -141,39 +148,6 @@ std::vector<std::string> objects_names_from_file(std::string const filename) {
     std::cout << "object names loaded \n";
     return file_lines;
 }
-
-template<typename T>
-class send_one_replaceable_object_t {
-    const bool sync;
-    std::atomic<T *> a_ptr;
-public:
-
-    void send(T const& _obj) {
-        T *new_ptr = new T;
-        *new_ptr = _obj;
-        if (sync) {
-            while (a_ptr.load()) std::this_thread::sleep_for(std::chrono::milliseconds(3));
-        }
-        std::unique_ptr<T> old_ptr(a_ptr.exchange(new_ptr));
-    }
-
-    T receive() {
-        std::unique_ptr<T> ptr;
-        do {
-            while(!a_ptr.load()) std::this_thread::sleep_for(std::chrono::milliseconds(3));
-            ptr.reset(a_ptr.exchange(NULL));
-        } while (!ptr);
-        T obj = *ptr;
-        return obj;
-    }
-
-    bool is_object_present() {
-        return (a_ptr.load() != NULL);
-    }
-
-    send_one_replaceable_object_t(bool _sync) : sync(_sync), a_ptr(NULL)
-    {}
-};
 
 image_t make_empty_image(int w, int h, int c)
 {
@@ -270,7 +244,10 @@ int main(int argc, char *argv[])
                 img_mutex.lock();
                 auto  img = mat_to_image(cv_image->image);
                 std::vector<bbox_t> result_vec = detector.detect(img);
+                draw_boxes(cv_image->image, result_vec, obj_names);
+                cv::imshow("window name", cv_image->image);
                 publish_objects_found(objectfound_publisher, result_vec, obj_names, last_frame_number);
+                cv::waitKey(1);
                 detector.free_image(img);
                 img_mutex.unlock();
                 show_console_result(result_vec, obj_names);

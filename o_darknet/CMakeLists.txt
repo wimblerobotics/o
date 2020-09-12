@@ -72,6 +72,7 @@ target_link_libraries(
   ${catkin_LIBRARIES} 
   ${Boost_LIBRARIES}
   ${CUDA_LIBRARIES}
+  ${OpenCV_LIBS}
 #  /usr/lib/aarch64-linux-gnu/libcuda.so
 #  /usr/lib/libdarknet.so
   ${DARKNET_LIB_NAME}
