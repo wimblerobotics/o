@@ -89,30 +89,19 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
 
 std::mutex img_mutex;
 
-static cv_bridge::CvImagePtr cv_image;  //###
+static cv_bridge::CvImagePtr cv_image;
 static uint32_t last_frame_number = 0;
 static uint32_t curr_frame_number = 0;
 
 void video_callback(const sensor_msgs::ImageConstPtr &msg) {
-    ROS_DEBUG("[darknet::video_callback] frame received.");
-
-    int frame_width;   //###
-    int frame_height;  //###
-
     img_mutex.lock();
     cv_image = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
     curr_frame_number++;
-
-    frame_width = cv_image->image.size().width;
-    frame_height = cv_image->image.size().height;
-    ROS_INFO("darknet::video_callback]  frame_width: %d, frame_height: %d",
-             frame_width, frame_height);
     img_mutex.unlock();
-
     return;
 }
 
-void publish_objects_found(ros::Publisher objectfound_publisher,
+void publish_objects_found(ros::Publisher object_found_publisher,
                            std::vector<bbox_t> const result_vec,
                            std::vector<std::string> const obj_names,
                            uint32_t frame_id = -1) {
@@ -131,7 +120,7 @@ void publish_objects_found(ros::Publisher objectfound_publisher,
         object_found_list.objects_found.push_back(object_found_message);
     }
 
-    objectfound_publisher.publish(object_found_list);
+    object_found_publisher.publish(object_found_list);
 }
 
 void show_console_result(std::vector<bbox_t> const result_vec,
@@ -208,32 +197,56 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "darknet_node");
     ros::NodeHandle nh;
 
-    image_transport::ImageTransport image_transport(nh);
+    std::string camera_topic;
+    assert(ros::param::get("darknet/camera_topic", camera_topic));
+    ROS_INFO("[darknet_node] darknet/camera_topic: %s", camera_topic.c_str());
+
+    bool publish_annotated_images;
+    assert(nh.hasParam("darknet/publish_annotated_images"));
+    ros::param::get("darknet/publish_annotated_images", publish_annotated_images);
+    ROS_INFO("[darknet_node] darknet/publish_annotated_images: %s", publish_annotated_images ? "true" : "false");
+
+    bool show_objects_detected_info;
+    assert(nh.hasParam("darknet/show_objects_detected_info"));
+    ros::param::get("darknet/show_objects_detected_info", show_objects_detected_info);
+    ROS_INFO("[darknet_node] darknet/show_objects_detected_info: %s", show_objects_detected_info ? "true" : "false");
+
+    bool show_opencv_movie;
+    assert(nh.hasParam("darknet/show_opencv_movie"));
+    ros::param::get("darknet/show_opencv_movie", show_opencv_movie);
+    ROS_INFO("[darknet_node] darknet/show_opencv_movie: %s", show_opencv_movie ? "true" : "false");
+
+    std::string transport;
+    assert(ros::param::get("darknet/transport", transport));
+    ROS_INFO("[darknet_node] darknet/transport: %s", transport.c_str());
+
+    std::string yolo_category_names_path;
+    assert(ros::param::get("darknet/yolo_category_names_path", yolo_category_names_path));
+    ROS_INFO("[darknet_node] darknet/yolo_category_names_path: %s", yolo_category_names_path.c_str());
+
+    std::string yolo_cfg_path;
+    assert(ros::param::get("darknet/yolo_cfg_path", yolo_cfg_path));
+    ROS_INFO("[darknet_node] darknet/yolo_cfg_path: %s", yolo_cfg_path.c_str());
+
+    std::string yolo_weights_path;
+    assert(ros::param::get("darknet/yolo_weights_path", yolo_weights_path));
+    ROS_INFO("[darknet_node] darknet/yolo_weights_path: %s", yolo_weights_path.c_str());
+
+    image_transport::ImageTransport subscriber_image_transport(nh);
     image_transport::Subscriber image_subscriber;
-    image_subscriber = image_transport.subscribe(
-        "/d435_left/color/image_raw", 1, boost::bind(video_callback, _1),
-        ros::VoidPtr(), image_transport::TransportHints("compressed"));
-
-    std::string names_file = "data/coco.names";
-    std::string cfg_file = "cfg/yolov3.cfg";
-    std::string weights_file = "yolov3.weights";
-
-    if (argc == 4) {  // voc.names yolo-voc.cfg yolo-voc.weights test.mp4
-        names_file = argv[1];
-        cfg_file = argv[2];
-        weights_file = argv[3];
-    } else {
-        exit(-1);
-    }
-
-    float const thresh = (argc > 5) ? std::stof(argv[5]) : 0.2;
-
-    ros::Publisher objectfound_publisher =
+    image_subscriber = subscriber_image_transport.subscribe(
+        camera_topic.c_str(), 1, boost::bind(video_callback, _1),
+        ros::VoidPtr(), image_transport::TransportHints(transport.c_str()));
+    
+    ros::Publisher object_found_publisher =
         nh.advertise<o_msgs::ObjectFoundList>("object_found", 1);
 
-    Detector detector(cfg_file, weights_file);
+    image_transport::ImageTransport annotated_image_transport(nh);
+    image_transport::Publisher annotated_image_publisher = annotated_image_transport.advertise("annotated_image", 1);
 
-    auto obj_names = objects_names_from_file(names_file);
+    Detector detector(yolo_cfg_path, yolo_weights_path);
+
+    auto obj_names = objects_names_from_file(yolo_category_names_path);
 
     cv::namedWindow("objects", cv::WINDOW_NORMAL);
     
@@ -242,19 +255,36 @@ int main(int argc, char *argv[]) {
             last_frame_number = curr_frame_number;
 
             try {
-                //#####auto img = detector.load_image(filename);
                 img_mutex.lock();
                 auto img = mat_to_image(cv_image->image);
                 std::vector<bbox_t> result_vec = detector.detect(img);
-                draw_boxes(cv_image->image, result_vec, obj_names);
-                cv::Mat dst;
-                cv::imshow("objects", cv_image->image);
-                publish_objects_found(objectfound_publisher, result_vec,
-                                        obj_names, last_frame_number);
-                cv::waitKey(1);
+                publish_objects_found(object_found_publisher, result_vec, obj_names, last_frame_number);
+
+                if (publish_annotated_images || show_opencv_movie) {
+                    draw_boxes(cv_image->image, result_vec, obj_names);
+
+                    if (publish_annotated_images) {
+                        cv_bridge::CvImage cv;
+                        cv.header.stamp = ros::Time::now();
+                        cv.encoding = sensor_msgs::image_encodings::BGR8;
+                        cv.image = cv_image->image;
+                        sensor_msgs::ImagePtr ros_image;
+
+                        ros_image = cv.toImageMsg();
+                        annotated_image_publisher.publish(ros_image);
+                    }
+
+                    if (show_opencv_movie) {
+                        cv::imshow("objects", cv_image->image);
+                        cv::waitKey(1);
+                    }
+                }
+
                 detector.free_image(img);
                 img_mutex.unlock();
-                show_console_result(result_vec, obj_names);
+                if (show_objects_detected_info) {
+                    show_console_result(result_vec, obj_names);
+                }
             } catch (std::exception &e) {
                 std::cerr << "exception: " << e.what() << "\n";
                 getchar();
@@ -266,7 +296,6 @@ int main(int argc, char *argv[]) {
 
         ros::spinOnce();
     }
-
 
     return 0;
 }
