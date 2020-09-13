@@ -1,8 +1,8 @@
 darknet:
   camera_topic:               "/d435_left/color/image_raw"
-  publish_annotated_images:   "false"
-  show_objects_detected_info: "false"
-  show_opencv_movie:          "false"
+  publish_annotated_images:   true
+  show_objects_detected_info: true
+  show_opencv_movie:          false
   transport:                  "compressed"
   yolo_category_names_path:   "$(find o_darknet)/yolo_data/o.names"
   yolo_cfg_path:              "$(find o_darknet)/yolo_data/o.cfg"
