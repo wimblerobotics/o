@@ -248,7 +248,9 @@ int main(int argc, char *argv[]) {
 
     auto obj_names = objects_names_from_file(yolo_category_names_path);
 
-    cv::namedWindow("objects", cv::WINDOW_NORMAL);
+    if (show_opencv_movie) {
+        cv::namedWindow("objects", cv::WINDOW_NORMAL);
+    }
     
     while (ros::ok()) {
         if (last_frame_number != curr_frame_number) {
