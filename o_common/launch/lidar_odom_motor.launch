@@ -21,6 +21,7 @@ SOFTWARE.
 -->
 
 <launch> 
+    <arg name="do_joystick" default="true" />
     <arg name="do_lidar" default="true" />
     <arg name="do_motor" default="true" />
     <arg name="do_t265" default="true" />
@@ -45,6 +46,7 @@ SOFTWARE.
     <!-- Launch the motor controller -->
     <include if="$(arg do_motor)" 
              file="$(find o_common)/launch/motor.launch">
+        <arg name="do_joystick" value="$(arg do_joystick)" />
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
 

@@ -22,25 +22,20 @@ SOFTWARE.
 
 <launch>
     <arg name="do_d435_cameras" default="true" />
+    <arg name="do_darknet" default="true" />
+    <arg name="do_joystick" default="false" />
+    <arg name="do_lidar" default="true" />
     <arg name="laser_merge_node_start_delay" default="1.0" />  
     <arg name="load_map_node_start_delay" default="4.0" />  
     <arg name="map_file" value="$(find o_map)/maps/Snowberry.yaml" />
     <arg name="robot_namespace" default="o" />
 
-    <!-- Load the map -->
-    <!--include
-        file="$(find o_map)/launch/map.launch">
-    </include-->
-
     <!-- Launch the sensor/motor stack -->
     <include file="$(find o_common)/launch/lidar_odom_motor.launch">
+        <arg name="do_joystick" value="$(arg do_joystick)" />
+        <arg name="do_lidar" value="$(arg do_lidar)" />
         <arg name="robot_namespace" value="$(arg robot_namespace)" />
     </include>
-
-    <!-- Launch AMCL -->
-    <!--include
-        file="$(find o_common)/launch/amcl.launch">
-    </include-->
 
     <!-- Bring up move_base -->
     <include 
@@ -73,6 +68,11 @@ SOFTWARE.
     <node pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
             <rosparam command="load" file="$(find o_common)/param/localization_mapper_params_online_sync.yaml" />
     </node>
+
+    <include
+        if="$(arg do_darknet)"
+        file="$(find o_darknet)/launch/darknet.launch" >
+    </include>
 
     <!--node 
         launch-prefix="bash -c 'sleep $(arg load_map_node_start_delay); $0 $@'"
