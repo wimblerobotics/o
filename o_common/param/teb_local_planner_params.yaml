@@ -1,5 +1,6 @@
 TebLocalPlannerROS:
-  ###map_frame: map
+  odom_topic: "/t265/odom/sample"
+  map_frame: "/odom"
 
   # Trajectory
   teb_autosize: True
@@ -8,8 +9,8 @@ TebLocalPlannerROS:
   max_samples: 500
 
   global_plan_overwrite_orientation: True
-  allow_init_with_backwards_motion: False
-  max_global_plan_lookahead_dist: 10.0
+  allow_init_with_backwards_motion: False //###
+  max_global_plan_lookahead_dist: 3.0
   feasibility_check_no_poses: 5
 
   # Robot
@@ -72,10 +73,10 @@ TebLocalPlannerROS:
 
   # Homotopy Class Planner
 
-  enable_homotopy_class_planning: False ###True
+  enable_homotopy_class_planning: True ###True
   enable_multithreading: True
   simple_exploration: False ### Used? ###
-  max_number_classes: 8 ###4
+  max_number_classes: 4 ###4
   roadmap_graph_no_samples: 15
   roadmap_graph_area_width: 6 ###5
   h_signature_prescaler: 1.0
@@ -84,5 +85,3 @@ TebLocalPlannerROS:
   obstacle_heading_threshold: 1.0
   visualize_hc_graph: False
 
-  odom_topic: "/t265/odom/sample"
-  #map_frame: "map"
