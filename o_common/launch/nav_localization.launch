@@ -22,7 +22,7 @@ SOFTWARE.
 
 <launch>
     <arg name="do_d435_cameras" default="true" />
-    <arg name="do_darknet" default="true" />
+    <arg name="do_darknet" default="false" />
     <arg name="do_joystick" default="false" />
     <arg name="do_lidar" default="true" />
     <arg name="laser_merge_node_start_delay" default="1.0" />  

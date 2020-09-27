@@ -36,6 +36,7 @@
         <rosparam file="$(find o_common)/param/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find o_common)/param/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find o_common)/param/teb_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find o_common)/param/global_planner_params.yaml" command="load" />
 
         <param name="base_global_planner" value="global_planner/GlobalPlanner" />
         <param name="planner_frequency" value="4.0" />
