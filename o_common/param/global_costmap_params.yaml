@@ -2,12 +2,12 @@ global_costmap:
   # always_send_full_costmap: false
   global_frame: 'map'
   height: 20.0
-  publish_frequency: 2.0
+  publish_frequency: 20.0
   robot_base_frame: 'base_footprint'
   resolution: 0.0508
   rolling_window: true #####
   transform_tolerance: 0.6 #####
-  update_frequency: 5.0
+  update_frequency: 20.0
   width: 20.0
 
   plugins:

@@ -48,7 +48,7 @@ SOFTWARE.
     <arg name="fisheye_width"           default="848"/> 
     <arg name="gyro_fps"                default="200"/>
     <!--arg name="imu_optical_frame_id"    default="base_link" /-->
-    <arg name="initial_reset"           default="true"/>
+    <arg name="initial_reset"           default="false"/>
     <arg name="json_file_path"          default=""/>
     <arg name="linear_accel_cov"        default="0.01"/>
     <!--arg name="odom_frame_id"           default="t265_camera_link" /-->

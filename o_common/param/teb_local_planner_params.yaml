@@ -1,58 +1,58 @@
 TebLocalPlannerROS:
   odom_topic: "/t265/odom/sample"
-  #map_frame: "/odom"
+  map_frame: "/odom"
 
   # Trajectory
   teb_autosize: True
-  dt_ref: 0.4
-  dt_hysteresis: 0.03 ###
-  min_samples: 3
+  dt_ref: 0.05 # Larger values causing oscillation around goal
+  dt_hysteresis: 0.005 ###
+  min_samples: 5
   #max_samples: 200 ###
 
   global_plan_overwrite_orientation: True
   allow_init_with_backwards_motion: True
   max_global_plan_lookahead_dist: 2.0
   feasibility_check_no_poses: 4
-  publish_feedback: True ###
+  publish_feedback: false ###
 
   # Robot
 
-  ax_vel_xm: 0.1
+  max_vel_xm: 0.1
   max_vel_x_backwards: 0.1
   max_vel_y: 0.0
   max_vel_theta: 3
-  acc_lim_x: 0.05
+  acc_lim_x: 0.1
   acc_lim_theta: 3.0
   min_turning_radius: 0.0
 
   footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
-    type: point
-  #  type: "polygon"
-  #  vertices: [[-0.38, -0.21], [-0.38, 0.21], [0.17, 0.21], [0.17, -0.21]]
-  #  type: "circular"
-  #  radius: 0.38
+#    type: point
+    type: "polygon"
+    vertices: [[-0.38, -0.21], [-0.38, 0.21], [0.17, 0.21], [0.17, -0.21]]
+    #   type: "circular"
+#   radius: 0.38
 
 
   # GoalTolerance
 
-  xy_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.15
   yaw_goal_tolerance: 0.04
   free_goal_vel: true
 
   # Obstacles
 
-  min_obstacle_dist: 0.38
-  #inflation_dist: 0.05 ##
+  min_obstacle_dist: 0.2
+  inflation_dist: 0.07 ##
   include_costmap_obstacles: True
-  costmap_obstacles_behind_robot_dist: 0.1
-  obstacle_poses_affected: 8 ###
-  costmap_converter_plugin: ""
+  costmap_obstacles_behind_robot_dist: 0.2
+  obstacle_poses_affected: 10 ###
+  costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
   costmap_converter_spin_thread: True
-  costmap_converter_rate: 2
+  costmap_converter_rate: 20 ##2
 
   obstacle_proximity_ratio_max_vel: 1
-  obstacle_proximity_lower_bound: 0.05 ## 0
-  obstacle_proximity_upper_bound: 0.7 ## 0.5
+  obstacle_proximity_lower_bound: 0.1 ## 0
+  #obstacle_proximity_upper_bound: 0.7 ## 0.5
 
   # Optimization
 
@@ -66,10 +66,10 @@ TebLocalPlannerROS:
   weight_acc_lim_x: 1
   weight_acc_lim_theta: 1
   weight_kinematics_nh: 1000
-  weight_kinematics_forward_drive: 500
-  weight_kinematics_turning_radius: 0
-  weight_optimaltime: 1
-  weight_obstacle: 50
+  weight_kinematics_forward_drive: 400
+  weight_kinematics_turning_radius: 1.0
+  weight_optimaltime: 80 ##
+  weight_obstacle: 150
   weight_inflation: 0.1
   weight_dynamic_obstacle: 10 # not in use yet
   alternative_time_cost: False # not in use yet
@@ -88,3 +88,14 @@ TebLocalPlannerROS:
   obstacle_heading_threshold: 1.0
   visualize_hc_graph: False
 
+costmap_converter/CostmapToLinesDBSRANSAC:
+    cluster_max_distance: 0.5
+    cluster_min_pts: 2
+    cluster_max_pts: 14
+    convex_hull_min_pt_separation: 0.0
+    ransac_inlier_distance: 0.15
+    ransac_min_inliers: 5 #10
+    ransac_no_iterations: 1000 #2000
+    ransac_remainig_outliers: 3
+    ransac_convert_outlier_pts: True
+    ransac_filter_remaining_outlier_pts: False

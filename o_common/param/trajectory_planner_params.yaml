@@ -1,0 +1,53 @@
+TrajectoryPlannerROS:
+  #Set the acceleration limits of the robot
+  acc_lim_theta: 1
+  acc_lim_x: 1
+  acc_lim_y: 0
+
+  #Set the velocity limits of the robot
+  max_vel_x: 1
+  min_vel_x: 0.20
+  max_vel_theta: 3
+  min_vel_theta: 0.8
+  min_in_place_vel_theta: 0.8
+
+  #We'll configure how long and with what granularity we'll forward simulate trajectories
+  sim_time: 1.5
+  sim_granularity: 0.1
+  angular_sim_granularity: 0.087
+
+  path_distance_bias: 1.0
+  goal_distance_bias: 0.8
+  occdist_scale: 0.2
+  oscillation_reset_dist: 0.05
+
+  escape_reset_dist: 0.1
+  escape_reset_theta: 1.5708
+
+  vx_samples: 10
+  vtheta_samples: 20
+
+  heading_lookahead: 0.325
+  holonomic_robot: false
+
+  escape_vel: -0.2
+
+  dwa: true
+  heading_scoring: false
+
+  simple_attractor: false
+  
+  #???
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.1
+  latch_xy_goal_tolerance: true
+
+  #???Parameters for scoring trajectories
+  global_frame_id: "map"
+  meter_scoring: true
+  publish_cost_grid_pc: true
+
+
+  #E???at up the plan as the robot moves along it
+  prune_plan: true
+  
