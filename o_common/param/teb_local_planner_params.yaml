@@ -6,18 +6,19 @@ TebLocalPlannerROS:
   teb_autosize: True
   dt_ref: 0.05 # Larger values causing oscillation around goal
   dt_hysteresis: 0.005 ###
+  force_reinit_new_goal_dist: 0.2
   min_samples: 5
   #max_samples: 200 ###
 
   global_plan_overwrite_orientation: True
-  allow_init_with_backwards_motion: True
+  allow_init_with_backwards_motion: false
   max_global_plan_lookahead_dist: 2.0
-  feasibility_check_no_poses: 4
+  feasibility_check_no_poses: 5
   publish_feedback: false ###
 
   # Robot
 
-  max_vel_xm: 0.1
+  max_vel_x: 0.5
   max_vel_x_backwards: 0.1
   max_vel_y: 0.0
   max_vel_theta: 3
@@ -41,8 +42,8 @@ TebLocalPlannerROS:
 
   # Obstacles
 
-  min_obstacle_dist: 0.2
-  inflation_dist: 0.07 ##
+  min_obstacle_dist: 0.32
+  inflation_dist: 0.5 ##
   include_costmap_obstacles: True
   costmap_obstacles_behind_robot_dist: 0.2
   obstacle_poses_affected: 10 ###
@@ -56,23 +57,24 @@ TebLocalPlannerROS:
 
   # Optimization
 
+  alternative_time_cost: False # not in use yet
   no_inner_iterations: 5
   no_outer_iterations: 4
   optimization_activate: True
   optimization_verbose: False
   penalty_epsilon: 0.1
-  weight_max_vel_x: 2
-  weight_max_vel_theta: 1
-  weight_acc_lim_x: 1
   weight_acc_lim_theta: 1
-  weight_kinematics_nh: 1000
-  weight_kinematics_forward_drive: 400
-  weight_kinematics_turning_radius: 1.0
-  weight_optimaltime: 80 ##
-  weight_obstacle: 150
-  weight_inflation: 0.1
+  weight_acc_lim_x: 1
   weight_dynamic_obstacle: 10 # not in use yet
-  alternative_time_cost: False # not in use yet
+  weight_inflation: 0.1
+  weight_kinematics_forward_drive: 800
+  weight_kinematics_nh: 1000
+  weight_kinematics_turning_radius: 1.0
+  weight_max_vel_theta: 1
+  weight_max_vel_x: 50
+  weight_obstacle: 300
+  weight_optimaltime: 50 ##
+  weight_shortest_path: 50
 
   # Homotopy Class Planner
 
@@ -81,11 +83,11 @@ TebLocalPlannerROS:
   simple_exploration: False ### Used? ###
   max_number_classes: 4 ###4
   roadmap_graph_no_samples: 15
-  roadmap_graph_area_width: 6 ###5
+  roadmap_graph_area_width: 5 ###5
   h_signature_prescaler: 1.0
   h_signature_threshold: 0.1
   obstacle_keypoint_offset: 0.1 ### Used? ###
-  obstacle_heading_threshold: 1.0
+  obstacle_heading_threshold: 0.45
   visualize_hc_graph: False
 
 costmap_converter/CostmapToLinesDBSRANSAC:
