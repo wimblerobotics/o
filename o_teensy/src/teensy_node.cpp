@@ -15,6 +15,46 @@ char recvBuff[1024];
 struct sockaddr_in serverAddress;
 
 
+void parseValues(const char* jsonArrayName, char* response, uint8_t numberValues) {
+  const char regexPattern[] = "\"%s\"\\:\\s*\\[(.*?)\\]";
+  char regexStr[sizeof(jsonArrayName) + 32];
+  regex_t sensorRegex;
+  regmatch_t sensorGroups[2];
+
+  sprintf(regexStr, regexPattern, jsonArrayName);
+  printf("len jsonArrayName: %d, len regexStr: %d\n", strlen(jsonArrayName), strlen(regexStr));
+  printf("regexStr: %s\n", regexStr);
+
+  if (regcomp(&sensorRegex, regexStr, REG_EXTENDED)) {
+    ROS_ERROR("[teensy_node] regcomp error");
+    exit(-1);
+  }
+
+  bool fail = regexec(&sensorRegex, response, 2, sensorGroups, 0);
+  if (fail) {
+    ROS_ERROR("[teensy_node] match failure");
+    exit(-1);
+  }
+
+  uint16_t matchLength = sensorGroups[1].rm_eo - sensorGroups[1].rm_so;
+  char groupString[matchLength + 1];
+  strncpy(groupString, &response[sensorGroups[1].rm_so], matchLength);
+  groupString[matchLength] = '\0';
+
+  uint16_t index = 0;
+  char* token = strtok(groupString, ",");
+  while (token != nullptr) {
+    if (index >= numberValues) {
+      ROS_ERROR("[teensy_node::parseValues] invalid index");
+      exit(-1);
+    }
+
+    printf("%s, value[%d]: %s\n", jsonArrayName, index++, token);
+    token = strtok(nullptr, ",");
+  }
+}
+
+
 void parseGroup(char* recvBuff, regmatch_t *sensorGroups, uint8_t group, uint8_t numberValues) {
   uint16_t matchLength = sensorGroups[group].rm_eo - sensorGroups[group].rm_so;
   char groupString[matchLength + 1];
@@ -113,6 +153,9 @@ int main(int argc, char** argv) {
     parseGroup(recvBuff, sensorGroups, 2, 4);
     parseGroup(recvBuff, sensorGroups, 3, 8);
 
+    parseValues("motor_currents_ma", recvBuff, 2);
+    parseValues("sonar_mm", recvBuff, 4);
+    parseValues("time_of_flight_mm", recvBuff, 8);
     ros::spinOnce();
     r.sleep();
   }
