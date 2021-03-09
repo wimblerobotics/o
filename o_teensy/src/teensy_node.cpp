@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <regex.h>
+#include "sensor_msgs/Range.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,15 +16,15 @@ char recvBuff[1024];
 struct sockaddr_in serverAddress;
 
 
-void parseValues(const char* jsonArrayName, char* response, uint8_t numberValues) {
-  const char regexPattern[] = "\"%s\"\\:\\s*\\[(.*?)\\]";
-  char regexStr[sizeof(jsonArrayName) + 32];
+void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayName, char* response, uint8_t numberValues) {
+  const char regexPattern[] = "\"%s\"\\:\\s*\\[([-0-9, ]*)\\]";
+  char regexStr[sizeof(jsonArrayName) +16];
   regex_t sensorRegex;
   regmatch_t sensorGroups[2];
 
   sprintf(regexStr, regexPattern, jsonArrayName);
-  printf("len jsonArrayName: %d, len regexStr: %d\n", strlen(jsonArrayName), strlen(regexStr));
-  printf("regexStr: %s\n", regexStr);
+  // printf("len jsonArrayName: %d, len regexStr: %d\n", strlen(jsonArrayName), strlen(regexStr));
+  // printf("regexStr: %s\n", regexStr);
 
   if (regcomp(&sensorRegex, regexStr, REG_EXTENDED)) {
     ROS_ERROR("[teensy_node] regcomp error");
@@ -40,37 +41,21 @@ void parseValues(const char* jsonArrayName, char* response, uint8_t numberValues
   char groupString[matchLength + 1];
   strncpy(groupString, &response[sensorGroups[1].rm_so], matchLength);
   groupString[matchLength] = '\0';
+  // printf("groupString: '%s'\n", groupString);
 
   uint16_t index = 0;
-  char* token = strtok(groupString, ",");
-  while (token != nullptr) {
+  char* savedPtr;
+  char* token = strtok_r(groupString, ",] ", &savedPtr);
+  
+  while (token != NULL) {
     if (index >= numberValues) {
       ROS_ERROR("[teensy_node::parseValues] invalid index");
+      //printf("token: %0lX, index: %d\n", (void*) token, index);
       exit(-1);
     }
 
-    printf("%s, value[%d]: %s\n", jsonArrayName, index++, token);
-    token = strtok(nullptr, ",");
-  }
-}
-
-
-void parseGroup(char* recvBuff, regmatch_t *sensorGroups, uint8_t group, uint8_t numberValues) {
-  uint16_t matchLength = sensorGroups[group].rm_eo - sensorGroups[group].rm_so;
-  char groupString[matchLength + 1];
-  strncpy(groupString, &recvBuff[sensorGroups[group].rm_so], matchLength);
-  groupString[matchLength] = '\0';
-
-  uint16_t index = 0;
-  char* token = strtok(groupString, ",");
-  while (token != nullptr) {
-    if (index >= numberValues) {
-      ROS_ERROR("[teensy_node::parseGroup] invalid index");
-      exit(-1);
-    }
-
-    printf("Group: %d, value[%d]: %s\n", group, index++, token);
-    token = strtok(nullptr, ",");
+    printf("%s, value[%d]: %ld\n", jsonArrayName, index++, strtol(token, NULL, 10));
+    token = strtok_r(NULL, ",] ", &savedPtr);
   }
 }
 
@@ -78,6 +63,7 @@ void parseGroup(char* recvBuff, regmatch_t *sensorGroups, uint8_t group, uint8_t
 int main(int argc, char** argv) {
   ros::init(argc, argv, "teensy_node");
   ros::NodeHandle nh;
+  ros::Publisher sonarPublisher = nh.advertise<sensor_msgs::Range>("sonar",8); 
 
   memset(recvBuff, '0', sizeof(recvBuff));
   clientSocketFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -97,14 +83,8 @@ int main(int argc, char** argv) {
   }
 
   const char request[] = "GET / HTTP/1.1\r\n\r\n";
-  // int n;
-  // while ((n = read(clientSocketFd, recvBuff, sizeof(recvBuff) - 1)) > 0) {
-  //   recvBuff[n] = 0;
-  //   fputs(recvBuff, stdout);
-  // }
 
   ROS_INFO("[teensy_node] starting loop");
-  ros::Rate r(1);
 
   regex_t sensorRegex;
   regmatch_t sensorGroups[4];
@@ -116,6 +96,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  ros::Rate r(20);
   while (ros::ok()) {
     if (send(clientSocketFd, request, strlen(request), 0) < 0) {
       ROS_ERROR("[teensy_node] request failed");
@@ -141,21 +122,9 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    for (int i = 0; i < 4; i++) {
-      uint16_t matchLength = sensorGroups[i].rm_eo - sensorGroups[i].rm_so;
-      char strCopy[matchLength + 1];
-      strncpy(strCopy, &recvBuff[sensorGroups[i].rm_so], matchLength);
-      strCopy[matchLength] = '\0';
-      printf("match [%d]: '%s'\n", i, strCopy);
-    }
-
-    parseGroup(recvBuff, sensorGroups, 1, 2);
-    parseGroup(recvBuff, sensorGroups, 2, 4);
-    parseGroup(recvBuff, sensorGroups, 3, 8);
-
-    parseValues("motor_currents_ma", recvBuff, 2);
-    parseValues("sonar_mm", recvBuff, 4);
-    parseValues("time_of_flight_mm", recvBuff, 8);
+    publishSonar(sonarPublisher, "sonar_mm", recvBuff, 4);
+    // parseValues("motor_currents_ma", recvBuff, 2);
+    // parseValues("time_of_flight_mm", recvBuff, 8);
     ros::spinOnce();
     r.sleep();
   }
