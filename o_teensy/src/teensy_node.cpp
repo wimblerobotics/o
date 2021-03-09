@@ -47,6 +47,8 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
   char* savedPtr;
   char* token = strtok_r(groupString, ",] ", &savedPtr);
   
+  sensor_msgs::Range rangeMessage;
+
   while (token != NULL) {
     if (index >= numberValues) {
       ROS_ERROR("[teensy_node::parseValues] invalid index");
@@ -54,8 +56,23 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
       exit(-1);
     }
 
-    printf("%s, value[%d]: %ld\n", jsonArrayName, index++, strtol(token, NULL, 10));
+    char frameId[] = "sonarX";
+    frameId[strlen(frameId) -1] = '0' + index;
+    long range = strtol(token, NULL, 10);
+    if ((range > 0) && (range < 2000)) {
+      rangeMessage.header.stamp = ros::Time::now();
+      rangeMessage.header.frame_id = frameId;
+      rangeMessage.radiation_type = sensor_msgs::Range::ULTRASOUND;
+      rangeMessage.field_of_view = 0.26;
+      rangeMessage.min_range = 0.0;
+      rangeMessage.max_range = 2.0;
+      rangeMessage.range = range / 1000.0;
+      sonarPublisher.publish(rangeMessage);
+    }
+
+    //printf("%s, value[%d]: %ld\n", jsonArrayName, index, strtol(token, NULL, 10));
     token = strtok_r(NULL, ",] ", &savedPtr);
+    index += 1;
   }
 }
 
@@ -114,7 +131,7 @@ int main(int argc, char** argv) {
     }
 
     recvBuff[n] = '\0';
-    printf("received message: '%s'\n", recvBuff);
+    //printf("received message: '%s'\n", recvBuff);
 
     bool fail = regexec(&sensorRegex, recvBuff, 4, sensorGroups, 0);
     if (fail) {
