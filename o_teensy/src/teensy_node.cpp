@@ -27,13 +27,13 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
   // printf("regexStr: %s\n", regexStr);
 
   if (regcomp(&sensorRegex, regexStr, REG_EXTENDED)) {
-    ROS_ERROR("[teensy_node] regcomp error");
+    ROS_ERROR("[teensy_node::publishSonar] regcomp error");
     exit(-1);
   }
 
   bool fail = regexec(&sensorRegex, response, 2, sensorGroups, 0);
   if (fail) {
-    ROS_ERROR("[teensy_node] match failure");
+    ROS_ERROR("[teensy_node::publishSonar] match failure");
     exit(-1);
   }
 
@@ -51,7 +51,7 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
 
   while (token != NULL) {
     if (index >= numberValues) {
-      ROS_ERROR("[teensy_node::parseValues] invalid index");
+      ROS_ERROR("[teensy_node::publishSonar] invalid index");
       //printf("token: %0lX, index: %d\n", (void*) token, index);
       exit(-1);
     }
@@ -63,7 +63,7 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
       rangeMessage.header.stamp = ros::Time::now();
       rangeMessage.header.frame_id = frameId;
       rangeMessage.radiation_type = sensor_msgs::Range::ULTRASOUND;
-      rangeMessage.field_of_view = 0.26;
+      rangeMessage.field_of_view = 0.26; // 15 degrees
       rangeMessage.min_range = 0.0;
       rangeMessage.max_range = 2.0;
       rangeMessage.range = range / 1000.0;
@@ -77,10 +77,72 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
 }
 
 
+void publishTimeOfFlight(const ros::Publisher& timeOfFlightPublisher, const char* jsonArrayName, char* response, uint8_t numberValues) {
+  const char regexPattern[] = "\"%s\"\\:\\s*\\[([-0-9, ]*)\\]";
+  char regexStr[sizeof(jsonArrayName) +16];
+  regex_t sensorRegex;
+  regmatch_t sensorGroups[2];
+
+  sprintf(regexStr, regexPattern, jsonArrayName);
+  // printf("len jsonArrayName: %d, len regexStr: %d\n", strlen(jsonArrayName), strlen(regexStr));
+  // printf("regexStr: %s\n", regexStr);
+
+  if (regcomp(&sensorRegex, regexStr, REG_EXTENDED)) {
+    ROS_ERROR("[teensy_node::publishTimeOfFlight] regcomp error");
+    exit(-1);
+  }
+
+  bool fail = regexec(&sensorRegex, response, 2, sensorGroups, 0);
+  if (fail) {
+    ROS_ERROR("[teensy_node::publishTimeOfFlight] match failure");
+    exit(-1);
+  }
+
+  uint16_t matchLength = sensorGroups[1].rm_eo - sensorGroups[1].rm_so;
+  char groupString[matchLength + 1];
+  strncpy(groupString, &response[sensorGroups[1].rm_so], matchLength);
+  groupString[matchLength] = '\0';
+  // printf("groupString: '%s'\n", groupString);
+
+  uint16_t index = 0;
+  char* savedPtr;
+  char* token = strtok_r(groupString, ",] ", &savedPtr);
+  
+  sensor_msgs::Range rangeMessage;
+
+  while (token != NULL) {
+    if (index >= numberValues) {
+      ROS_ERROR("[teensy_node::publishTimeOfFlight] invalid index");
+      //printf("token: %0lX, index: %d\n", (void*) token, index);
+      exit(-1);
+    }
+
+    char frameId[] = "tofX";
+    frameId[strlen(frameId) -1] = '0' + index;
+    long range = strtol(token, NULL, 10);
+    if ((range > 0) && (range < 2000)) {
+      rangeMessage.header.stamp = ros::Time::now();
+      rangeMessage.header.frame_id = frameId;
+      rangeMessage.radiation_type = sensor_msgs::Range::ULTRASOUND;
+      rangeMessage.field_of_view = 0.44; // 25 degrees
+      rangeMessage.min_range = 0.0;
+      rangeMessage.max_range = 2.0;
+      rangeMessage.range = range / 1000.0;
+      timeOfFlightPublisher.publish(rangeMessage);
+    }
+
+    //printf("%s, value[%d]: %ld\n", jsonArrayName, index, strtol(token, NULL, 10));
+    token = strtok_r(NULL, ",] ", &savedPtr);
+    index += 1;
+  }
+}
+
+
 int main(int argc, char** argv) {
   ros::init(argc, argv, "teensy_node");
   ros::NodeHandle nh;
   ros::Publisher sonarPublisher = nh.advertise<sensor_msgs::Range>("sonar",8); 
+  ros::Publisher timeOfFlightPublisher = nh.advertise<sensor_msgs::Range>("time_of_flight",8); 
 
   memset(recvBuff, '0', sizeof(recvBuff));
   clientSocketFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -127,6 +189,7 @@ int main(int argc, char** argv) {
     }
 
     if (n <= 2) {
+      // Not a sensor data message.
       continue;
     }
 
@@ -140,6 +203,7 @@ int main(int argc, char** argv) {
     }
 
     publishSonar(sonarPublisher, "sonar_mm", recvBuff, 4);
+    publishTimeOfFlight(timeOfFlightPublisher, "time_of_flight_mm", recvBuff, 8);
     // parseValues("motor_currents_ma", recvBuff, 2);
     // parseValues("time_of_flight_mm", recvBuff, 8);
     ros::spinOnce();
