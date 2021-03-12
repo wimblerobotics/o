@@ -9,6 +9,7 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   rosconsole
   roscpp
   rospy
@@ -20,10 +21,21 @@ find_package(Boost REQUIRED COMPONENTS
   thread
 )
 
+add_message_files(
+  FILES
+  MotorCurrent.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS 
     libboost-thread-dev
+    message_runtime
     roscpp
     std_msgs
 )
