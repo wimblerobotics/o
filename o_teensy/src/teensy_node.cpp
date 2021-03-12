@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <regex.h>
 #include "sensor_msgs/Range.h"
+#include "sensor_msgs/Temperature.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,6 +78,62 @@ void publishSonar(const ros::Publisher& sonarPublisher, const char* jsonArrayNam
 }
 
 
+void publishTemperature(const ros::Publisher& temperaturePublisher, const char* jsonArrayName, char* response, uint8_t numberValues) {
+  const char regexPattern[] = "\"%s\"\\:\\s*\\[([-0-9, ]*)\\]";
+  char regexStr[sizeof(jsonArrayName) +16];
+  regex_t sensorRegex;
+  regmatch_t sensorGroups[2];
+
+  sprintf(regexStr, regexPattern, jsonArrayName);
+  // printf("len jsonArrayName: %d, len regexStr: %d\n", strlen(jsonArrayName), strlen(regexStr));
+  // printf("regexStr: %s\n", regexStr);
+
+  if (regcomp(&sensorRegex, regexStr, REG_EXTENDED)) {
+    ROS_ERROR("[teensy_node::publishSonar] regcomp error");
+    exit(-1);
+  }
+
+  bool fail = regexec(&sensorRegex, response, 2, sensorGroups, 0);
+  if (fail) {
+    ROS_ERROR("[teensy_node::publishTemperature] match failure");
+    exit(-1);
+  }
+
+  uint16_t matchLength = sensorGroups[1].rm_eo - sensorGroups[1].rm_so;
+  char groupString[matchLength + 1];
+  strncpy(groupString, &response[sensorGroups[1].rm_so], matchLength);
+  groupString[matchLength] = '\0';
+  // printf("groupString: '%s'\n", groupString);
+
+  uint16_t index = 0;
+  char* savedPtr;
+  char* token = strtok_r(groupString, ",] ", &savedPtr);
+  
+  sensor_msgs::Temperature temperatureMessage;
+
+  while (token != NULL) {
+    if (index >= numberValues) {
+      ROS_ERROR("[teensy_node::publishTemperature] invalid index");
+      //printf("token: %0lX, index: %d\n", (void*) token, index);
+      exit(-1);
+    }
+
+    char frameId[] = "temperatureX";
+    frameId[strlen(frameId) -1] = '0' + index;
+    long temperatureTenthsC = strtol(token, NULL, 10);
+    temperatureMessage.header.stamp = ros::Time::now();
+    temperatureMessage.header.frame_id = frameId;
+    temperatureMessage.temperature = temperatureTenthsC / 10.0;
+    temperatureMessage.variance = 0;
+    temperaturePublisher.publish(temperatureMessage);
+
+    //printf("%s, value[%d]: %ld\n", jsonArrayName, index, strtol(token, NULL, 10));
+    token = strtok_r(NULL, ",] ", &savedPtr);
+    index += 1;
+  }
+}
+
+
 void publishTimeOfFlight(const ros::Publisher& timeOfFlightPublisher, const char* jsonArrayName, char* response, uint8_t numberValues) {
   const char regexPattern[] = "\"%s\"\\:\\s*\\[([-0-9, ]*)\\]";
   char regexStr[sizeof(jsonArrayName) +16];
@@ -142,6 +199,7 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "teensy_node");
   ros::NodeHandle nh;
   ros::Publisher sonarPublisher = nh.advertise<sensor_msgs::Range>("sonar",8); 
+  ros::Publisher temperaturePublisher = nh.advertise<sensor_msgs::Temperature>("temperatureC",8); 
   ros::Publisher timeOfFlightPublisher = nh.advertise<sensor_msgs::Range>("time_of_flight",8); 
 
   memset(recvBuff, '0', sizeof(recvBuff));
@@ -203,6 +261,7 @@ int main(int argc, char** argv) {
     }
 
     publishSonar(sonarPublisher, "sonar_mm", recvBuff, 4);
+    publishTemperature(temperaturePublisher, "temperature_tenthsC", recvBuff, 2);
     publishTimeOfFlight(timeOfFlightPublisher, "time_of_flight_mm", recvBuff, 8);
     // parseValues("motor_currents_ma", recvBuff, 2);
     // parseValues("time_of_flight_mm", recvBuff, 8);
