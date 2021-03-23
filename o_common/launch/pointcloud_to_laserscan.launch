@@ -21,7 +21,7 @@ SOFTWARE.
 -->
 
 <launch>
-    <arg name="machine" default="i5a" />
+    <arg name="machine" default="amdb" />
     <arg name="left_or_right" />
     <arg name="topic" />
     <arg name="robot_namespace" default="o" />

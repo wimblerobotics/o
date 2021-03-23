@@ -33,7 +33,7 @@ SOFTWARE.
 
     <!-- Launch the pointcould to laserscan nodes /-->
     <node
-        machine="i5a"
+        machine="amdb"
         name="left_pointcloud_to_laserscan"
         pkg="pointcloud_to_laserscan"
         type="pointcloud_to_laserscan_node"
@@ -50,7 +50,7 @@ SOFTWARE.
     </node>
 
     <node
-        machine="i5a"
+        machine="amdb"
         name="right_pointcloud_to_laserscan"
         pkg="pointcloud_to_laserscan"
         type="pointcloud_to_laserscan_node"

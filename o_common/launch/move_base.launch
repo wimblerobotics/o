@@ -20,7 +20,7 @@
     SOFTWARE.
     -->
 <launch>
-    <arg name="machine" default="i5a" />
+    <arg name="machine" default="amdb" />
 
     <include file="$(find o_common)/launch/machines.xml" />
 

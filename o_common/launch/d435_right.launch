@@ -45,7 +45,7 @@ SOFTWARE.
         <arg name="enable_sync"             value="true" />
         <!--arg name="initial_reset"         value="True"/-->
         <arg name="linear_accel_cov"        value="1.0"/>
-        <arg name="machine"                 value="i5a" />
+        <arg name="machine"                 value="amdb" />
         <arg name="serial_no"               value="836612072267" />
         <arg name="tf_prefix"               value="d435_right" />
         <arg name="unite_imu_method"        value="linear_interpolation"/>

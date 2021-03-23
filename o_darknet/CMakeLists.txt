@@ -54,6 +54,7 @@ catkin_package(
 include_directories(
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  /home/ros/darknet/include/
 )
 
 add_executable (

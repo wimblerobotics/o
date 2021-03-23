@@ -44,7 +44,7 @@ SOFTWARE.
     <!-- Bring up move_base -->
     <include 
         file="$(find o_common)/launch/move_base.launch" >
-        <arg name="machine" value="i5a" />
+        <arg name="machine" value="amdb" />
     </include>
 
     <!-- Bring up the D435 cameras -->

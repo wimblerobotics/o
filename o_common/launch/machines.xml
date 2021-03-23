@@ -106,4 +106,12 @@ SOFTWARE.
         name="i5a"
         user="ros"
     />
+
+    <machine
+        address="amdb"
+        default="false"
+        env-loader="/home/ros/remote_env.sh"
+        name="amdb"
+        user="ros"
+    />
 </launch>
